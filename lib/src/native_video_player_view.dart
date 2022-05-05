@@ -1,0 +1,60 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+
+import 'native_video_player_controller.dart';
+
+class NativeVideoPlayerView extends StatefulWidget {
+  final void Function(NativeVideoPlayerController)? onViewReady;
+
+  const NativeVideoPlayerView({
+    Key? key,
+    required this.onViewReady,
+  }) : super(key: key);
+
+  @override
+  _NativeVideoPlayerViewState createState() => _NativeVideoPlayerViewState();
+}
+
+class _NativeVideoPlayerViewState extends State<NativeVideoPlayerView> {
+  NativeVideoPlayerController? _controller;
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: _buildNativeView(),
+    );
+  }
+
+  Widget _buildNativeView() {
+    const viewType = 'native_video_player_view';
+    // final Map<String, dynamic> creationParams = <String, dynamic>{};
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return AndroidView(
+        viewType: viewType,
+        onPlatformViewCreated: onPlatformViewCreated,
+        // creationParams: creationParams,
+        // creationParamsCodec: const StandardMessageCodec(),
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return UiKitView(
+        viewType: viewType,
+        onPlatformViewCreated: onPlatformViewCreated,
+        // creationParams: creationParams,
+        // creationParamsCodec: const StandardMessageCodec(),
+      );
+    }
+    return Text('$defaultTargetPlatform is not yet supported by this plugin.');
+  }
+
+  Future<void> onPlatformViewCreated(int id) async {
+    final controller = NativeVideoPlayerController(id);
+    _controller = controller;
+    widget.onViewReady?.call(controller);
+  }
+}
