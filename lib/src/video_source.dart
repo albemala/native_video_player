@@ -8,6 +8,12 @@ part 'video_source.g.dart';
 
 @JsonSerializable()
 class VideoSource {
+  /// Initialize a video source.
+  //
+  //  If the source is an asset, it will be copied to a temporary file.
+  //
+  //  [path] is the path to the video source.
+  //  [type] is the type of video source (asset, file, network).
   static Future<VideoSource> init({
     required String path,
     required VideoSourceType type,
@@ -26,7 +32,10 @@ class VideoSource {
     );
   }
 
+  /// Absolute path to the video source.
   final String path;
+
+  /// Type of video source (asset, file, network).
   final VideoSourceType type;
 
   /// A constructor for use in serialization.

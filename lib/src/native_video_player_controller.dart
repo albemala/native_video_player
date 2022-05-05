@@ -28,22 +28,33 @@ class NativeVideoPlayerController {
   String? get _error => onError.value;
 
   /// Emitted when the video loaded successfully and it's ready to play.
-  /// /// At this point, [videoInfo] is available.
+  /// At this point, [videoInfo] and [playbackInfo] are available.
   final onPlaybackReady = ChangeNotifier();
 
+  /// You can query the playback status with [playbackInfo]
   final onPlaybackStatusChanged = ValueNotifier<PlaybackStatus>(
     PlaybackStatus.stopped,
   );
+
+  /// You can query the playback position with [playbackInfo]
   final onPlaybackPositionChanged = ValueNotifier<int>(0);
+
+  /// Emitted when the video has finished playing.
   final onPlaybackEnded = ChangeNotifier();
+
+  /// Emitted when a playback error occurs
+  /// or when it's not possible to load the video source
   final onError = ValueNotifier<String?>(
     null,
   );
 
+  /// The video source that is currently loaded.
   VideoSource? get videoSource => _videoSource;
 
+  /// The video info about the current video source.
   VideoInfo? get videoInfo => _videoInfo;
 
+  /// The playback info about the video being played.
   PlaybackInfo? get playbackInfo => PlaybackInfo(
         status: _playbackStatus,
         position: _playbackPosition,
@@ -66,6 +77,7 @@ class NativeVideoPlayerController {
 
   Future<void> _onPlaybackReady() async {
     _videoInfo = await _api.getVideoInfo();
+    // Make sure the volume is reset to the correct value
     await setVolume(_volume);
     onPlaybackReady.notifyListeners();
   }
@@ -86,6 +98,7 @@ class NativeVideoPlayerController {
     _api.dispose();
   }
 
+  /// Loads a new video source.
   Future<void> loadVideoSource(VideoSource videoSource) async {
     try {
       await stop();
@@ -107,8 +120,8 @@ class NativeVideoPlayerController {
     }
   }
 
-  /// Pauses the playback of the video. Use
-  /// [play] to resume the playback at any time.
+  /// Pauses the playback of the video.
+  /// Use [play] to resume the playback from the paused position.
   Future<void> pause() async {
     try {
       await _api.pause();
@@ -120,6 +133,8 @@ class NativeVideoPlayerController {
   }
 
   /// Stops the playback of the video.
+  /// The playback position is reset to 0.
+  /// Use [play] to start the playback from the beginning.
   Future<void> stop() async {
     try {
       await _api.stop();
@@ -131,8 +146,7 @@ class NativeVideoPlayerController {
     }
   }
 
-  /// Gets the state of the player.
-  /// Returns true if the player is playing or false if is stopped or paused.
+  /// Returns true if the video is playing, or false if it's stopped or paused.
   Future<bool> isPlaying() async {
     try {
       return await _api.isPlaying() ?? false;
@@ -142,10 +156,7 @@ class NativeVideoPlayerController {
     }
   }
 
-  /// Moves the cursor of the playback to an specific time.
-  /// Must give the [seconds] of the specific millisecond of playback, if
-  /// the [seconds] is bigger than the duration of source the duration
-  /// of the video is used as position.
+  /// Moves the playback position to the given position in seconds.
   Future<void> seekTo(int seconds) async {
     var position = seconds;
     if (seconds < 0) position = 0;
@@ -158,6 +169,7 @@ class NativeVideoPlayerController {
     }
   }
 
+  /// Seeks the video forward by the given number of seconds.
   Future<void> seekForward(int seconds) async {
     if (seconds < 0) return;
     if (seconds == 0) return;
@@ -168,6 +180,7 @@ class NativeVideoPlayerController {
     await seekTo(newPlaybackPosition);
   }
 
+  /// Seeks the video backward by the given number of seconds.
   Future<void> seekBackward(int seconds) async {
     if (seconds < 0) return;
     if (seconds == 0) return;

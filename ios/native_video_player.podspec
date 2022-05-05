@@ -5,11 +5,11 @@
 Pod::Spec.new do |s|
   s.name             = 'native_video_player'
   s.version          = '1.0.0'
-  s.summary          = 'A new flutter plugin project.'
+  s.summary          = 'A Flutter widget to play videos on iOS and Android using a native implementation.'
   s.description      = <<-DESC
-A new flutter plugin project.
+A Flutter widget to play videos on iOS and Android using a native implementation.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://pub.dev/packages/native_video_player'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Alberto Malagoli' => 'albemala@gmail.com' }
   s.source           = { :path => '.' }
