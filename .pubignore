@@ -1,3 +1,6 @@
 build/
 example/build/
 scripts/
+
+gradlew*
+local.properties

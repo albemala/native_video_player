@@ -44,40 +44,61 @@ class NativeVideoPlayerApi {
   }
 
   Future<void> loadVideoSource(VideoSource videoSource) async {
-    await _channel.invokeMethod<void>('loadVideoSource', videoSource.toJson());
+    await _channel.invokeMethod<void>(
+      'loadVideoSource',
+      videoSource.toJson(),
+    );
   }
 
   Future<VideoInfo?> getVideoInfo() async {
-    final response = await _channel.invokeMethod<Map<Object?, Object?>>('getVideoInfo');
+    final response = await _channel.invokeMethod<Map<Object?, Object?>>(
+      'getVideoInfo',
+    );
     if (response == null) return null;
     return VideoInfo.fromJson(Map<String, dynamic>.from(response));
   }
 
   Future<void> play() async {
-    await _channel.invokeMethod<void>('play');
+    await _channel.invokeMethod<void>(
+      'play',
+    );
   }
 
   Future<void> pause() async {
-    await _channel.invokeMethod<void>('pause');
+    await _channel.invokeMethod<void>(
+      'pause',
+    );
   }
 
   Future<void> stop() async {
-    await _channel.invokeMethod<void>('stop');
+    await _channel.invokeMethod<void>(
+      'stop',
+    );
   }
 
   Future<bool?> isPlaying() async {
-    return _channel.invokeMethod<bool?>('isPlaying');
+    return _channel.invokeMethod<bool?>(
+      'isPlaying',
+    );
   }
 
   Future<void> seekTo(int position) async {
-    await _channel.invokeMethod<void>('seekTo', position);
+    await _channel.invokeMethod<void>(
+      'seekTo',
+      position,
+    );
   }
 
   Future<int?> getPlaybackPosition() async {
-    return _channel.invokeMethod<int?>('getPlaybackPosition');
+    return _channel.invokeMethod<int?>(
+      'getPlaybackPosition',
+    );
   }
 
   Future<void> setVolume(double volume) async {
-    await _channel.invokeMethod<bool>('setVolume', volume);
+    await _channel.invokeMethod<bool>(
+      'setVolume',
+      volume,
+    );
   }
 }

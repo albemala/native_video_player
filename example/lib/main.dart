@@ -21,11 +21,13 @@ final videoSources = [
   ExampleVideoSource(path: 'assets/video/05.mp4', type: VideoSourceType.asset),
   ExampleVideoSource(path: 'assets/video/06.mp4', type: VideoSourceType.asset),
   ExampleVideoSource(
-    path: 'https://cdn.videvo.net/videvo_files/video/free/2017-12/large_watermarked/171124_B1_HD_001_preview.mp4',
+    path:
+        'https://cdn.videvo.net/videvo_files/video/free/2017-12/large_watermarked/171124_B1_HD_001_preview.mp4',
     type: VideoSourceType.network,
   ),
   ExampleVideoSource(
-    path: 'https://cdn.videvo.net/videvo_files/video/free/2018-01/large_watermarked/171124_G1_013_preview.mp4',
+    path:
+        'https://cdn.videvo.net/videvo_files/video/free/2018-01/large_watermarked/171124_G1_013_preview.mp4',
     type: VideoSourceType.network,
   ),
 ];
@@ -229,10 +231,18 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
   Future<void> _initController(controller) async {
     _controller = controller;
 
-    _controller?.onPlaybackStatusChanged.addListener(_onPlaybackStatusChanged);
-    _controller?.onPlaybackPositionChanged.addListener(_onPlaybackPositionChanged);
-    _controller?.onPlaybackReady.addListener(_onPlaybackReady);
-    _controller?.onPlaybackEnded.addListener(_onPlaybackEnded);
+    _controller?. //
+        onPlaybackStatusChanged
+        .addListener(_onPlaybackStatusChanged);
+    _controller?. //
+        onPlaybackPositionChanged
+        .addListener(_onPlaybackPositionChanged);
+    _controller?. //
+        onPlaybackReady
+        .addListener(_onPlaybackReady);
+    _controller?. //
+        onPlaybackEnded
+        .addListener(_onPlaybackEnded);
 
     await _loadVideoSource();
   }
@@ -251,10 +261,18 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
 
   @override
   void dispose() {
-    _controller?.onPlaybackStatusChanged.removeListener(_onPlaybackStatusChanged);
-    _controller?.onPlaybackPositionChanged.removeListener(_onPlaybackPositionChanged);
-    _controller?.onPlaybackReady.removeListener(_onPlaybackReady);
-    _controller?.onPlaybackEnded.removeListener(_onPlaybackEnded);
+    _controller?. //
+        onPlaybackStatusChanged
+        .removeListener(_onPlaybackStatusChanged);
+    _controller?. //
+        onPlaybackPositionChanged
+        .removeListener(_onPlaybackPositionChanged);
+    _controller?. //
+        onPlaybackReady
+        .removeListener(_onPlaybackReady);
+    _controller?. //
+        onPlaybackEnded
+        .removeListener(_onPlaybackEnded);
     _controller = null;
     super.dispose();
   }
@@ -321,9 +339,17 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
         const SizedBox(height: 4),
         Row(
           children: [
-            Text(formatDuration(Duration(seconds: _controller?.playbackInfo?.position ?? 0))),
+            Text(
+              formatDuration(
+                Duration(seconds: _controller?.playbackInfo?.position ?? 0),
+              ),
+            ),
             const Spacer(),
-            Text(formatDuration(Duration(seconds: _controller?.videoInfo?.duration ?? 0))),
+            Text(
+              formatDuration(
+                Duration(seconds: _controller?.videoInfo?.duration ?? 0),
+              ),
+            ),
           ],
         ),
         Row(
@@ -451,7 +477,10 @@ class _VideoListItemViewState extends State<VideoListItemView> {
                 child: FutureBuilder(
                   future: _isPlaying,
                   initialData: false,
-                  builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                  builder: (
+                    BuildContext context,
+                    AsyncSnapshot<bool> snapshot,
+                  ) {
                     final isPlaying = snapshot.data ?? false;
                     return Icon(
                       isPlaying ? Icons.pause : Icons.play_arrow,

@@ -29,7 +29,11 @@ class VideoInfo {
     required this.duration,
   });
 
-  factory VideoInfo.fromJson(Map<String, dynamic> json) => _$VideoInfoFromJson(json);
+  factory VideoInfo.fromJson(Map<String, dynamic> json) {
+    return _$VideoInfoFromJson(json);
+  }
 
-  Map<String, dynamic> toJson() => _$VideoInfoToJson(this);
+  Map<String, dynamic> toJson() {
+    return _$VideoInfoToJson(this);
+  }
 }
