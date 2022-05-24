@@ -27,7 +27,7 @@ Widget build(BuildContext context) {
   return NativeVideoPlayerView(
     onViewReady: (controller) async {
       final videoSource = await VideoSource.init(
-        path: 'psth/to/file',
+        path: 'path/to/file',
         type: VideoSourceType,
       );
       await controller.loadVideoSource(videoSource);
@@ -49,7 +49,7 @@ controller.onPlaybackReady.addListener(() {
 });
 controller.onPlaybackStatusChanged.addListener(() {
   final playbackStatus = controller.playbackInfo.status;
-  // playbackStatus can be playig, paused, or stopped. 
+  // playbackStatus can be playing, paused, or stopped. 
 });
 controller.onPlaybackPositionChanged.addListener(() {
   final playbackPosition = controller.playbackInfo.position;
