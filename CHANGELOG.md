@@ -1,3 +1,7 @@
+## 1.0.3
+
+- Fixed publishing error
+
 ## 1.0.2 
 
 - Fixed videos not playing on iOS 14
