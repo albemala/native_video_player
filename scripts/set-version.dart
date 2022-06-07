@@ -25,7 +25,7 @@ void main(List<String> args) {
       );
   androidBuildGradleFile.writeAsStringSync(newAndroidBuildGradle);
 
-  // replace current version with new version in ios/md5_file_checksum.podspec
+  // replace current version with new version in ios/native_video_player.podspec
   final iosPodspecFile = File('ios/native_video_player.podspec');
   final newIosPodspec = iosPodspecFile //
       .readAsStringSync()
