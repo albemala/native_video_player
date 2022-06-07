@@ -76,9 +76,11 @@ extension NativeVideoPlayerViewController: NativeVideoPlayerApiDelegate {
 
     func stop(completion: @escaping () -> Void) {
         player.pause()
-        player.seek(
-            to: CMTime.zero
-        ) { _ in
+        if #available(iOS 15, *) {
+            // on iOS 15 or newer
+            player.seek(to: CMTime.zero) { _ in completion()}
+        } else {
+            player.seek(to: CMTime.zero)
             completion()
         }
     }
