@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Targeting Flutter 3
+
 ## 1.0.3
 
 - Fixed publishing error
