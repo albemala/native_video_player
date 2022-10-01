@@ -27,6 +27,7 @@ class _NativeVideoPlayerViewState extends State<NativeVideoPlayerView> {
 
   @override
   void dispose() {
+    // ignore: invalid_use_of_protected_member
     _controller?.dispose();
     super.dispose();
   }
