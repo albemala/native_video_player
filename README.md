@@ -1,12 +1,16 @@
-[![Pub](https://img.shields.io/pub/v/native_video_player)](https://pub.dev/packages/native_video_player)
-
 # native_video_player
+
+[![Pub](https://img.shields.io/pub/v/native_video_player)](https://pub.dev/packages/native_video_player)
 
 A Flutter widget to play videos on iOS and Android using a native implementation.
 
 |             | Android | iOS  |
 |:------------|:--------|:-----|
 | **Support** | 16+     | 9.0+ |
+
+<img src="screenshots/1.gif" width="320"/>
+<img src="screenshots/2.gif" width="320"/>
+<img src="screenshots/3.gif" width="320"/>
 
 ### Implementation
 
