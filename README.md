@@ -8,9 +8,9 @@ A Flutter widget to play videos on iOS and Android using a native implementation
 |:------------|:--------|:-----|
 | **Support** | 16+     | 9.0+ |
 
-<img src="screenshots/1.gif" width="320"/>
-<img src="screenshots/2.gif" width="320"/>
-<img src="screenshots/3.gif" width="320"/>
+<img src="https://raw.githubusercontent.com/albemala/native_video_player/main/screenshots/1.gif" width="320"/>
+<img src="https://raw.githubusercontent.com/albemala/native_video_player/main/screenshots/2.gif" width="320"/>
+<img src="https://raw.githubusercontent.com/albemala/native_video_player/main/screenshots/3.gif" width="320"/>
 
 ### Implementation
 

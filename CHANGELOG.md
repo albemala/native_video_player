@@ -1,3 +1,7 @@
+## 1.1.0+2
+
+- Fixed gifs not showing in Readme
+
 ## 1.1.0
 
 - Targeting Flutter 3
