@@ -5,6 +5,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.view.View
+import android.widget.Toast
 import android.widget.VideoView
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.platform.PlatformView
@@ -98,7 +99,19 @@ class NativeVideoPlayerViewController(
         return videoView.isPlaying
     }
 
-    override fun seekTo(position: Int) {
+    override fun setSpeed(speed: Double) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mediaPlayer?.playbackParams = mediaPlayer?.playbackParams?.setSpeed(speed.toFloat())!!
+        } else {
+            Toast.makeText(
+                getView().context,
+                "Speed function is not supported",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+				override fun seekTo(position: Int) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             mediaPlayer?.seekTo((position * 1000).toLong(), MediaPlayer.SEEK_CLOSEST)
         else
