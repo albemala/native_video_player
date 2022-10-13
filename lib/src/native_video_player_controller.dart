@@ -3,12 +3,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:native_video_player/src/platform_interface/native_video_player_api.dart';
+import 'package:native_video_player/src/playback_info.dart';
 import 'package:native_video_player/src/playback_status.dart';
 import 'package:native_video_player/src/video_info.dart';
-
-import 'platform_interface/native_video_player_api.dart';
-import 'playback_info.dart';
-import 'video_source.dart';
+import 'package:native_video_player/src/video_source.dart';
 
 class NativeVideoPlayerController {
   late final NativeVideoPlayerApi _api;
@@ -18,6 +17,7 @@ class NativeVideoPlayerController {
   Timer? _playbackPositionTimer;
 
   double _volume = 0;
+  double _speed = 1;
 
   PlaybackStatus get _playbackStatus => onPlaybackStatusChanged.value;
 
@@ -62,6 +62,7 @@ class NativeVideoPlayerController {
         position: _playbackPosition,
         positionFraction: _playbackPositionFraction,
         volume: _volume,
+        speed: _speed,
         error: _error,
       );
 
@@ -81,6 +82,7 @@ class NativeVideoPlayerController {
     _videoInfo = await _api.getVideoInfo();
     // Make sure the volume is reset to the correct value
     await setVolume(_volume);
+    await setSpeed(_speed);
     onPlaybackReady.notifyListeners();
   }
 
@@ -197,6 +199,16 @@ class NativeVideoPlayerController {
     try {
       await _api.setVolume(volume);
       _volume = volume;
+    } catch (exception) {
+      print(exception);
+    }
+  }
+
+  /// Sets the speed of the player.
+  Future<void> setSpeed(double speed) async {
+    try {
+      await _api.setSpeed(speed);
+      _speed = speed;
     } catch (exception) {
       print(exception);
     }
