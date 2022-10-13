@@ -219,6 +219,7 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
 
   bool isAutoplayEnabled = false;
   bool isPlaybackLoopEnabled = false;
+  double _speed = 1.0;
 
   @override
   void didUpdateWidget(VideoPlayerView oldWidget) {
@@ -279,9 +280,10 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
 
   void _onPlaybackReady() {
     setState(() {});
-    if (isAutoplayEnabled) {
-      _controller?.play();
-    }
+    _controller?.play();
+    // if (isAutoplayEnabled) {
+    //   _controller?.play();
+    // }
   }
 
   void _onPlaybackStatusChanged() {
@@ -350,6 +352,24 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
                 Duration(seconds: _controller?.videoInfo?.duration ?? 0),
               ),
             ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text("Speed: ${_speed.toStringAsFixed(1)}"),
+                const SizedBox(height: 2),
+                Slider(
+                  min: 0.0,
+                  max: 1.0,
+                  value: _speed,
+                  onChanged: (value) {
+                    setState(() {
+                      _speed = value;
+                    });
+                    _controller?.setSpeed(value);
+                  },
+                ),
+              ],
+            ),
           ],
         ),
         Row(
@@ -366,7 +386,6 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
               icon: const Icon(Icons.stop),
               onPressed: () => _controller?.stop(),
             ),
-            const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.fast_rewind),
               onPressed: () => _controller?.seekBackward(5),
@@ -375,6 +394,10 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
               icon: const Icon(Icons.fast_forward),
               onPressed: () => _controller?.seekForward(5),
             ),
+            // IconButton(
+            //   icon: const Icon(Icons.slow_motion_video),
+            //   onPressed: () => _controller?.setSpeed(0.3),
+            // ),
             const Spacer(),
             _buildPlaybackStatusView(),
           ],
