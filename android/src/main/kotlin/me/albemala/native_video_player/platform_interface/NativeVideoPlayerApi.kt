@@ -10,6 +10,7 @@ interface NativeVideoPlayerApiDelegate {
     fun play()
     fun pause()
     fun stop()
+    fun setSpeed(speed: Double)
     fun isPlaying(): Boolean
     fun seekTo(position: Int)
     fun getPlaybackPosition(): Int
@@ -86,6 +87,12 @@ class NativeVideoPlayerApi(
                 val position = methodCall.arguments as? Int
                     ?: return result.error(invalidArgumentsErrorCode, invalidArgumentsErrorMessage, null)
                 delegate?.seekTo(position)
+                result.success(null)
+            }
+			"setSpeed" -> {
+                val speed = methodCall.arguments as? Double
+                    ?: return result.error(invalidArgumentsErrorCode, invalidArgumentsErrorMessage, null)
+                delegate?.setSpeed(speed)
                 result.success(null)
             }
             "setVolume" -> {
