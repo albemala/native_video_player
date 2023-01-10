@@ -22,12 +22,7 @@ final videoSources = [
   ExampleVideoSource(path: 'assets/video/06.mp4', type: VideoSourceType.asset),
   ExampleVideoSource(
     path:
-        'https://cdn.videvo.net/videvo_files/video/free/2017-12/large_watermarked/171124_B1_HD_001_preview.mp4',
-    type: VideoSourceType.network,
-  ),
-  ExampleVideoSource(
-    path:
-        'https://cdn.videvo.net/videvo_files/video/free/2018-01/large_watermarked/171124_G1_013_preview.mp4',
+        'https://file-examples.com/storage/fea8fc38fd63bc5c39cf20b/2017/04/file_example_MP4_480_1_5MG.mp4',
     type: VideoSourceType.network,
   ),
 ];
