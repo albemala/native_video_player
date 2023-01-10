@@ -3,12 +3,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:native_video_player/src/platform_interface/native_video_player_api.dart';
+import 'package:native_video_player/src/playback_info.dart';
 import 'package:native_video_player/src/playback_status.dart';
 import 'package:native_video_player/src/video_info.dart';
-
-import 'platform_interface/native_video_player_api.dart';
-import 'playback_info.dart';
-import 'video_source.dart';
+import 'package:native_video_player/src/video_source.dart';
 
 class NativeVideoPlayerController {
   late final NativeVideoPlayerApi _api;

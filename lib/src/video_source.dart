@@ -1,8 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-import 'utils/file.dart';
-import 'video_source_type.dart';
+import 'package:native_video_player/src/utils/file.dart';
+import 'package:native_video_player/src/video_source_type.dart';
 
 part 'video_source.g.dart';
 

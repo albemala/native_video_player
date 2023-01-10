@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-
-import 'native_video_player_controller.dart';
+import 'package:native_video_player/src/native_video_player_controller.dart';
 
 /// A [StatefulWidget] that is responsible for displaying a video.
 ///
@@ -14,9 +13,9 @@ class NativeVideoPlayerView extends StatefulWidget {
   final void Function(NativeVideoPlayerController)? onViewReady;
 
   const NativeVideoPlayerView({
-    Key? key,
+    super.key,
     required this.onViewReady,
-  }) : super(key: key);
+  });
 
   @override
   _NativeVideoPlayerViewState createState() => _NativeVideoPlayerViewState();
@@ -61,7 +60,8 @@ class _NativeVideoPlayerViewState extends State<NativeVideoPlayerView> {
     return Text('$defaultTargetPlatform is not yet supported by this plugin.');
   }
 
-  /// This method is invoked by the platform view when the native view is created.
+  /// This method is invoked by the platform view
+  /// when the native view is created.
   Future<void> onPlatformViewCreated(int id) async {
     final controller = NativeVideoPlayerController(id);
     _controller = controller;
