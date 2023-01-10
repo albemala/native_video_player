@@ -34,13 +34,19 @@ class NativeVideoPlayerController {
   /// At this point, [videoInfo] and [playbackInfo] are available.
   final onPlaybackReady = ChangeNotifier();
 
-  /// You can query the playback status with [playbackInfo]
+  /// You can get the playback status also with [playbackInfo]
   final onPlaybackStatusChanged = ValueNotifier<PlaybackStatus>(
     PlaybackStatus.stopped,
   );
 
-  /// You can query the playback position with [playbackInfo]
+  /// You can get the playback position also with [playbackInfo]
   final onPlaybackPositionChanged = ValueNotifier<int>(0);
+
+  /// You can get the playback speed also with [playbackInfo]
+  final onPlaybackSpeedChanged = ValueNotifier<double>(1);
+
+  /// You can get the playback volume also with [playbackInfo]
+  final onVolumeChanged = ValueNotifier<double>(0);
 
   /// Emitted when the video has finished playing.
   final onPlaybackEnded = ChangeNotifier();
@@ -161,11 +167,14 @@ class NativeVideoPlayerController {
     final duration = videoInfo?.duration ?? 0;
     if (seconds > duration) position = duration;
     await _api.seekTo(position);
+    // if the video is not playing, update onPlaybackPositionChanged
+    if (_playbackStatus != PlaybackStatus.playing) {
+      onPlaybackPositionChanged.value = position;
+    }
   }
 
   /// Seeks the video forward by the given number of seconds.
   Future<void> seekForward(int seconds) async {
-    if (seconds <= 0) return;
     final duration = videoInfo?.duration ?? 0;
     final newPlaybackPosition = _playbackPosition + seconds > duration //
         ? duration
@@ -175,7 +184,6 @@ class NativeVideoPlayerController {
 
   /// Seeks the video backward by the given number of seconds.
   Future<void> seekBackward(int seconds) async {
-    if (seconds <= 0) return;
     final newPlaybackPosition = _playbackPosition - seconds < 0 //
         ? 0
         : _playbackPosition - seconds;
@@ -185,8 +193,11 @@ class NativeVideoPlayerController {
   /// Sets the playback speed.
   /// The default value is 1.
   Future<void> setPlaybackSpeed(double speed) async {
-    await _api.setPlaybackSpeed(speed);
+    if (onPlaybackStatusChanged.value == PlaybackStatus.playing) {
+      await _api.setPlaybackSpeed(speed);
+    }
     _playbackSpeed = speed;
+    onPlaybackSpeedChanged.value = speed;
   }
 
   /// Sets the volume of the player.
@@ -195,6 +206,7 @@ class NativeVideoPlayerController {
   Future<void> setVolume(double volume) async {
     await _api.setVolume(volume);
     _volume = volume;
+    onVolumeChanged.value = volume;
   }
 
   void _startPlaybackPositionTimer() {

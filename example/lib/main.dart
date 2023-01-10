@@ -233,6 +233,12 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
         onPlaybackPositionChanged
         .addListener(_onPlaybackPositionChanged);
     _controller?. //
+        onPlaybackSpeedChanged
+        .addListener(_onPlaybackSpeedChanged);
+    _controller?. //
+        onVolumeChanged
+        .addListener(_onPlaybackVolumeChanged);
+    _controller?. //
         onPlaybackReady
         .addListener(_onPlaybackReady);
     _controller?. //
@@ -263,6 +269,12 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
         onPlaybackPositionChanged
         .removeListener(_onPlaybackPositionChanged);
     _controller?. //
+        onPlaybackSpeedChanged
+        .removeListener(_onPlaybackSpeedChanged);
+    _controller?. //
+        onVolumeChanged
+        .removeListener(_onPlaybackVolumeChanged);
+    _controller?. //
         onPlaybackReady
         .removeListener(_onPlaybackReady);
     _controller?. //
@@ -284,6 +296,14 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
   }
 
   void _onPlaybackPositionChanged() {
+    setState(() {});
+  }
+
+  void _onPlaybackSpeedChanged() {
+    setState(() {});
+  }
+
+  void _onPlaybackVolumeChanged() {
     setState(() {});
   }
 
