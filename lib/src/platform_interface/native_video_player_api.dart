@@ -100,4 +100,11 @@ class NativeVideoPlayerApi {
       volume,
     );
   }
+
+  Future<void> setPlaybackSpeed(double speed) async {
+    await _channel.invokeMethod<bool>(
+      'setPlaybackSpeed',
+      speed,
+    );
+  }
 }

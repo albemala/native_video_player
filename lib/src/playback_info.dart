@@ -15,6 +15,9 @@ class PlaybackInfo {
   /// The current playback volume.
   final double volume;
 
+  /// The current playback speed.
+  final double speed;
+
   /// An error message, if playback failed.
   final String? error;
 
@@ -25,6 +28,7 @@ class PlaybackInfo {
     required this.position,
     required this.positionFraction,
     required this.volume,
+    required this.speed,
     this.error,
   });
 }

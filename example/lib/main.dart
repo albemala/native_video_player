@@ -381,11 +381,27 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
         ),
         Row(
           children: [
-            const Text("Volume"),
+            Text(
+                "Volume: ${_controller?.playbackInfo?.volume.toStringAsFixed(2)}"),
             Expanded(
               child: Slider(
                 value: _controller?.playbackInfo?.volume ?? 0,
                 onChanged: (value) => _controller?.setVolume(value),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Text(
+                "Speed: ${_controller?.playbackInfo?.speed.toStringAsFixed(2)}"),
+            Expanded(
+              child: Slider(
+                value: _controller?.playbackInfo?.speed ?? 1,
+                onChanged: (value) => _controller?.setPlaybackSpeed(value),
+                min: 0.25,
+                max: 2,
+                divisions: (2 - 0.25) ~/ 0.25,
               ),
             ),
           ],

@@ -104,6 +104,10 @@ extension NativeVideoPlayerViewController: NativeVideoPlayerApiDelegate {
         return Int(currentTime.isValid ? currentTime.seconds : 0)
     }
 
+    func setPlaybackSpeed(speed: Double) {
+        player.rate = Float(speed)
+    }
+
     func setVolume(volume: Double) {
         player.volume = Float(volume)
     }

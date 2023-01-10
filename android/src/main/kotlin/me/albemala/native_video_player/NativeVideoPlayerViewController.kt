@@ -81,6 +81,10 @@ class NativeVideoPlayerViewController(
         )
     }
 
+    override fun getPlaybackPosition(): Int {
+        return videoView.currentPosition / 1000
+    }
+
     override fun play() {
         videoView.start()
     }
@@ -105,8 +109,11 @@ class NativeVideoPlayerViewController(
             videoView.seekTo(position * 1000)
     }
 
-    override fun getPlaybackPosition(): Int {
-        return videoView.currentPosition / 1000
+    override fun setPlaybackSpeed(speed: Double) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            mediaPlayer?.playbackParams = mediaPlayer?.playbackParams?.setSpeed(speed.toFloat()) ?: return
+        else
+            api.onError(Error("Playback speed is not supported on this device"))
     }
 
     override fun setVolume(volume: Double) {

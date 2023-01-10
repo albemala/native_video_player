@@ -16,8 +16,6 @@ class NativeVideoPlayerController {
 
   Timer? _playbackPositionTimer;
 
-  double _volume = 0;
-
   PlaybackStatus get _playbackStatus => onPlaybackStatusChanged.value;
 
   int get _playbackPosition => onPlaybackPositionChanged.value;
@@ -25,6 +23,10 @@ class NativeVideoPlayerController {
   double get _playbackPositionFraction => videoInfo != null //
       ? _playbackPosition / videoInfo!.duration
       : 0;
+
+  double _playbackSpeed = 1;
+
+  double _volume = 0;
 
   String? get _error => onError.value;
 
@@ -60,6 +62,7 @@ class NativeVideoPlayerController {
         status: _playbackStatus,
         position: _playbackPosition,
         positionFraction: _playbackPositionFraction,
+        speed: _playbackSpeed,
         volume: _volume,
         error: _error,
       );
@@ -115,6 +118,7 @@ class NativeVideoPlayerController {
     await _api.play();
     _startPlaybackPositionTimer();
     onPlaybackStatusChanged.value = PlaybackStatus.playing;
+    await setPlaybackSpeed(_playbackSpeed);
   }
 
   /// Pauses the playback of the video.
@@ -161,8 +165,7 @@ class NativeVideoPlayerController {
 
   /// Seeks the video forward by the given number of seconds.
   Future<void> seekForward(int seconds) async {
-    if (seconds < 0) return;
-    if (seconds == 0) return;
+    if (seconds <= 0) return;
     final duration = videoInfo?.duration ?? 0;
     final newPlaybackPosition = _playbackPosition + seconds > duration //
         ? duration
@@ -172,12 +175,18 @@ class NativeVideoPlayerController {
 
   /// Seeks the video backward by the given number of seconds.
   Future<void> seekBackward(int seconds) async {
-    if (seconds < 0) return;
-    if (seconds == 0) return;
+    if (seconds <= 0) return;
     final newPlaybackPosition = _playbackPosition - seconds < 0 //
         ? 0
         : _playbackPosition - seconds;
     await seekTo(newPlaybackPosition);
+  }
+
+  /// Sets the playback speed.
+  /// The default value is 1.
+  Future<void> setPlaybackSpeed(double speed) async {
+    await _api.setPlaybackSpeed(speed);
+    _playbackSpeed = speed;
   }
 
   /// Sets the volume of the player.

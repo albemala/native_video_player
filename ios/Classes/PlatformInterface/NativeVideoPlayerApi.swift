@@ -1,12 +1,13 @@
 protocol NativeVideoPlayerApiDelegate: AnyObject {
     func loadVideoSource(videoSource: VideoSource)
     func getVideoInfo() -> VideoInfo
+    func getPlaybackPosition() -> Int
     func play()
     func pause()
     func stop(completion: @escaping () -> Void)
     func isPlaying() -> Bool
     func seekTo(position: Int, completion: @escaping () -> Void)
-    func getPlaybackPosition() -> Int
+    func setPlaybackSpeed(speed: Double)
     func setVolume(volume: Double)
 }
 
@@ -59,9 +60,11 @@ class NativeVideoPlayerApi {
             delegate?.loadVideoSource(videoSource: videoSource)
             result(nil)
         case "getVideoInfo":
-            result(delegate?.getVideoInfo().toMap())
+            let videoInfo = delegate?.getVideoInfo().toMap()
+            result(videoInfo)
         case "getPlaybackPosition":
-            result(delegate?.getPlaybackPosition())
+            let playbackPosition = delegate?.getPlaybackPosition()
+            result(playbackPosition)
         case "play":
             delegate?.play()
             result(nil)
@@ -83,6 +86,13 @@ class NativeVideoPlayerApi {
             delegate?.seekTo(position: position) {
                 result(nil)
             }
+        case "setPlaybackSpeed":
+            guard let playbackSpeed = call.arguments as? Double else {
+                result(invalidArgumentsFlutterError)
+                return
+            }
+            delegate?.setPlaybackSpeed(speed: playbackSpeed)
+            result(nil)
         case "setVolume":
             guard let volume = call.arguments as? Double else {
                 result(invalidArgumentsFlutterError)

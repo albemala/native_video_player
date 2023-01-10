@@ -7,12 +7,13 @@ import io.flutter.plugin.common.MethodChannel
 interface NativeVideoPlayerApiDelegate {
     fun loadVideoSource(videoSource: VideoSource)
     fun getVideoInfo(): VideoInfo
+    fun getPlaybackPosition(): Int
     fun play()
     fun pause()
     fun stop()
     fun isPlaying(): Boolean
     fun seekTo(position: Int)
-    fun getPlaybackPosition(): Int
+    fun setPlaybackSpeed(speed: Double)
     fun setVolume(volume: Double)
 }
 
@@ -86,6 +87,12 @@ class NativeVideoPlayerApi(
                 val position = methodCall.arguments as? Int
                     ?: return result.error(invalidArgumentsErrorCode, invalidArgumentsErrorMessage, null)
                 delegate?.seekTo(position)
+                result.success(null)
+            }
+            "setPlaybackSpeed" -> {
+                val speed = methodCall.arguments as? Double
+                    ?: return result.error(invalidArgumentsErrorCode, invalidArgumentsErrorMessage, null)
+                delegate?.setPlaybackSpeed(speed)
                 result.success(null)
             }
             "setVolume" -> {
