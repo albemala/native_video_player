@@ -101,51 +101,43 @@ class NativeVideoPlayerController {
   }
 
   /// Loads a new video source.
+  ///
+  /// NOTE: This method might throw an exception if the video source is invalid.
   Future<void> loadVideoSource(VideoSource videoSource) async {
-    try {
-      await stop();
-      await _api.loadVideoSource(videoSource);
-      _videoSource = videoSource;
-    } catch (exception) {
-      print(exception);
-    }
+    await stop();
+    await _api.loadVideoSource(videoSource);
+    _videoSource = videoSource;
   }
 
   /// Starts/resumes the playback of the video.
+  ///
+  /// NOTE: This method might throw an exception if the video cannot be played.
   Future<void> play() async {
-    try {
-      await _api.play();
-      _startPlaybackPositionTimer();
-      onPlaybackStatusChanged.value = PlaybackStatus.playing;
-    } catch (exception) {
-      print(exception);
-    }
+    await _api.play();
+    _startPlaybackPositionTimer();
+    onPlaybackStatusChanged.value = PlaybackStatus.playing;
   }
 
   /// Pauses the playback of the video.
   /// Use [play] to resume the playback from the paused position.
+  ///
+  /// NOTE: This method might throw an exception if the video cannot be paused.
   Future<void> pause() async {
-    try {
-      await _api.pause();
-      _stopPlaybackPositionTimer();
-      onPlaybackStatusChanged.value = PlaybackStatus.paused;
-    } catch (exception) {
-      print(exception);
-    }
+    await _api.pause();
+    _stopPlaybackPositionTimer();
+    onPlaybackStatusChanged.value = PlaybackStatus.paused;
   }
 
   /// Stops the playback of the video.
   /// The playback position is reset to 0.
   /// Use [play] to start the playback from the beginning.
+  ///
+  /// NOTE: This method might throw an exception if the video cannot be stopped.
   Future<void> stop() async {
-    try {
-      await _api.stop();
-      _stopPlaybackPositionTimer();
-      onPlaybackStatusChanged.value = PlaybackStatus.stopped;
-      await _onPlaybackPositionTimerChanged(null);
-    } catch (exception) {
-      print(exception);
-    }
+    await _api.stop();
+    _stopPlaybackPositionTimer();
+    onPlaybackStatusChanged.value = PlaybackStatus.stopped;
+    await _onPlaybackPositionTimerChanged(null);
   }
 
   /// Returns true if the video is playing, or false if it's stopped or paused.
@@ -153,22 +145,19 @@ class NativeVideoPlayerController {
     try {
       return await _api.isPlaying() ?? false;
     } catch (exception) {
-      print(exception);
       return false;
     }
   }
 
   /// Moves the playback position to the given position in seconds.
+  ///
+  /// NOTE: This method might throw an exception if the video cannot be seeked.
   Future<void> seekTo(int seconds) async {
     var position = seconds;
     if (seconds < 0) position = 0;
     final duration = videoInfo?.duration ?? 0;
     if (seconds > duration) position = duration;
-    try {
-      await _api.seekTo(position);
-    } catch (exception) {
-      print(exception);
-    }
+    await _api.seekTo(position);
   }
 
   /// Seeks the video forward by the given number of seconds.
@@ -193,13 +182,11 @@ class NativeVideoPlayerController {
   }
 
   /// Sets the volume of the player.
+  ///
+  /// NOTE: This method might throw an exception if the volume cannot be set.
   Future<void> setVolume(double volume) async {
-    try {
-      await _api.setVolume(volume);
-      _volume = volume;
-    } catch (exception) {
-      print(exception);
-    }
+    await _api.setVolume(volume);
+    _volume = volume;
   }
 
   void _startPlaybackPositionTimer() {
@@ -216,12 +203,10 @@ class NativeVideoPlayerController {
     _playbackPositionTimer = null;
   }
 
+  /// NOTE: This method can throw an exception
+  /// if the playback position cannot be retrieved.
   Future<void> _onPlaybackPositionTimerChanged(Timer? timer) async {
-    try {
-      final position = await _api.getPlaybackPosition() ?? 0;
-      onPlaybackPositionChanged.value = position;
-    } catch (exception) {
-      print(exception);
-    }
+    final position = await _api.getPlaybackPosition() ?? 0;
+    onPlaybackPositionChanged.value = position;
   }
 }
