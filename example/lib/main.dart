@@ -20,6 +20,7 @@ final videoSources = [
   ExampleVideoSource(path: 'assets/video/04.mp4', type: VideoSourceType.asset),
   ExampleVideoSource(path: 'assets/video/05.mp4', type: VideoSourceType.asset),
   ExampleVideoSource(path: 'assets/video/06.mp4', type: VideoSourceType.asset),
+  // ExampleVideoSource(path: 'assets/video/07.webm', type: VideoSourceType.asset),
   ExampleVideoSource(
     path:
         'https://file-examples.com/storage/fea8fc38fd63bc5c39cf20b/2017/04/file_example_MP4_480_1_5MG.mp4',
