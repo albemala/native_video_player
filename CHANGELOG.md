@@ -1,3 +1,7 @@
+## 1.3.0
+
+- Targeting Dart 3.0 and Flutter 3.10
+
 ## 1.2.0+3
 
 - BREAKING: `NativeVideoPlayerController` now throws exceptions that must be handled by the caller.
