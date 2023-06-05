@@ -14,7 +14,7 @@ VideoSource _$VideoSourceFromJson(Map<String, dynamic> json) => VideoSource(
 Map<String, dynamic> _$VideoSourceToJson(VideoSource instance) =>
     <String, dynamic>{
       'path': instance.path,
-      'type': _$VideoSourceTypeEnumMap[instance.type],
+      'type': _$VideoSourceTypeEnumMap[instance.type]!,
     };
 
 const _$VideoSourceTypeEnumMap = {

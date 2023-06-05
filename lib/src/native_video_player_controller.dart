@@ -1,5 +1,3 @@
-// ignore_for_file: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
-
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -9,7 +7,7 @@ import 'package:native_video_player/src/playback_status.dart';
 import 'package:native_video_player/src/video_info.dart';
 import 'package:native_video_player/src/video_source.dart';
 
-class NativeVideoPlayerController {
+class NativeVideoPlayerController with ChangeNotifier {
   late final NativeVideoPlayerApi _api;
   VideoSource? _videoSource;
   VideoInfo? _videoInfo;
@@ -102,10 +100,12 @@ class NativeVideoPlayerController {
   }
 
   // NOTE: For internal use only.
+  @override
   @protected
   void dispose() {
     _stopPlaybackPositionTimer();
     _api.dispose();
+    super.dispose();
   }
 
   /// Loads a new video source.

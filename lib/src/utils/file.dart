@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// Loads a file from the assets folder and caches it in the temporary directory.
+/// Loads a file from the assets folder and caches it
+/// in the temporary directory.
 /// Returns the cached file.
 Future<File> loadAssetFile(String assetPath) async {
   final cacheDirectory = await getTemporaryDirectory();

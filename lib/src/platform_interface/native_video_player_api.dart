@@ -28,16 +28,13 @@ class NativeVideoPlayerApi {
     switch (call.method) {
       case 'onPlaybackReady':
         onPlaybackReady();
-        break;
       case 'onPlaybackEnded':
         onPlaybackEnded();
-        break;
       case 'onError':
         // final errorCode = call.arguments['errorCode'] as int;
         // final errorMessage = call.arguments['errorMessage'] as String;
         final message = call.arguments as String;
         onError(message);
-        break;
     }
     throw UnsupportedError('Unrecognized method ${call.method}');
   }

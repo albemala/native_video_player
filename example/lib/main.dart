@@ -39,7 +39,7 @@ enum AppRoute {
 }
 
 class AppView extends StatefulWidget {
-  const AppView({Key? key}) : super(key: key);
+  const AppView({super.key});
 
   @override
   State<AppView> createState() => _AppViewState();
@@ -83,10 +83,10 @@ class BottomNavigationView extends StatelessWidget {
   final void Function(AppRoute) onAppRouteSelected;
 
   const BottomNavigationView({
-    Key? key,
+    super.key,
     required this.selectedAppRoute,
     required this.onAppRouteSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -108,14 +108,14 @@ class BottomNavigationView extends StatelessWidget {
 }
 
 class VideoPlayerScreenView extends StatefulWidget {
-  const VideoPlayerScreenView({Key? key}) : super(key: key);
+  const VideoPlayerScreenView({super.key});
 
   @override
   State<VideoPlayerScreenView> createState() => _VideoPlayerScreenViewState();
 }
 
 class _VideoPlayerScreenViewState extends State<VideoPlayerScreenView> {
-  var selectedVideoSource = videoSources.first;
+  var _selectedVideoSource = videoSources.first;
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +127,7 @@ class _VideoPlayerScreenViewState extends State<VideoPlayerScreenView> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: VideoPlayerView(
-                videoSource: selectedVideoSource,
+                videoSource: _selectedVideoSource,
               ),
             ),
             const SizedBox(height: 16),
@@ -136,7 +136,7 @@ class _VideoPlayerScreenViewState extends State<VideoPlayerScreenView> {
               child: VideoCarouselView(
                 onVideoSourceSelected: (videoSource) {
                   setState(() {
-                    selectedVideoSource = videoSource;
+                    _selectedVideoSource = videoSource;
                   });
                 },
               ),
@@ -153,9 +153,9 @@ class VideoCarouselView extends StatelessWidget {
   final void Function(ExampleVideoSource) onVideoSourceSelected;
 
   const VideoCarouselView({
-    Key? key,
+    super.key,
     required this.onVideoSourceSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +174,7 @@ class VideoCarouselView extends StatelessWidget {
                     type: videoSources[index].type,
                     path: videoSources[index].path,
                   );
-                  controller.loadVideoSource(videoSource);
+                  await controller.loadVideoSource(videoSource);
                 },
               ),
               Material(
@@ -201,9 +201,9 @@ class VideoPlayerView extends StatefulWidget {
   final ExampleVideoSource videoSource;
 
   const VideoPlayerView({
-    Key? key,
+    super.key,
     required this.videoSource,
-  }) : super(key: key);
+  });
 
   @override
   State<VideoPlayerView> createState() => _VideoPlayerViewState();
@@ -223,7 +223,7 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
     }
   }
 
-  Future<void> _initController(controller) async {
+  Future<void> _initController(NativeVideoPlayerController controller) async {
     _controller = controller;
 
     _controller?. //
@@ -254,7 +254,7 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
   }
 
   Future<VideoSource> _createVideoSource() async {
-    return await VideoSource.init(
+    return VideoSource.init(
       path: widget.videoSource.path,
       type: widget.videoSource.type,
     );
@@ -317,7 +317,7 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
+      // mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Row(
           children: [
@@ -346,7 +346,7 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
           ),
         ),
         Slider(
-          min: 0,
+          // min: 0,
           max: (_controller?.videoInfo?.duration ?? 0).toDouble(),
           value: (_controller?.playbackInfo?.position ?? 0).toDouble(),
           onChanged: (value) => _controller?.seekTo(value.toInt()),
@@ -396,8 +396,8 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
         ),
         Row(
           children: [
-            Text(
-                "Volume: ${_controller?.playbackInfo?.volume.toStringAsFixed(2)}"),
+            Text('''
+Volume: ${_controller?.playbackInfo?.volume.toStringAsFixed(2)}'''),
             Expanded(
               child: Slider(
                 value: _controller?.playbackInfo?.volume ?? 0,
@@ -408,8 +408,8 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
         ),
         Row(
           children: [
-            Text(
-                "Speed: ${_controller?.playbackInfo?.speed.toStringAsFixed(2)}"),
+            Text('''
+Speed: ${_controller?.playbackInfo?.speed.toStringAsFixed(2)}'''),
             Expanded(
               child: Slider(
                 value: _controller?.playbackInfo?.speed ?? 1,
@@ -443,8 +443,8 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
 
 class VideoListScreenView extends StatelessWidget {
   const VideoListScreenView({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -454,8 +454,8 @@ class VideoListScreenView extends StatelessWidget {
 
 class VideoListView extends StatelessWidget {
   const VideoListView({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -476,9 +476,9 @@ class VideoListItemView extends StatefulWidget {
   final ExampleVideoSource videoSource;
 
   const VideoListItemView({
-    Key? key,
+    super.key,
     required this.videoSource,
-  }) : super(key: key);
+  });
 
   @override
   State<VideoListItemView> createState() => _VideoListItemViewState();
@@ -496,7 +496,7 @@ class _VideoListItemViewState extends State<VideoListItemView> {
           NativeVideoPlayerView(
             onViewReady: (controller) async {
               _controller = controller;
-              _controller?.setVolume(1);
+              await _controller?.setVolume(1);
               await _loadVideoSource();
             },
           ),
@@ -533,7 +533,7 @@ class _VideoListItemViewState extends State<VideoListItemView> {
       type: widget.videoSource.type,
       path: widget.videoSource.path,
     );
-    _controller?.loadVideoSource(videoSource);
+    await _controller?.loadVideoSource(videoSource);
   }
 
   Future<void> _togglePlayback() async {
