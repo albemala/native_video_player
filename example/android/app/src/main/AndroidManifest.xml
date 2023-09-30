@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-   <application
+    <application
         android:label="native_video_player_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
