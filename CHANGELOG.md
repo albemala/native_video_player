@@ -1,3 +1,9 @@
+## 1.3.1
+
+- Fixed #10 
+- Split example into multiple files 
+- Upgraded dependencies 
+
 ## 1.3.0
 
 - Targeting Dart 3.0 and Flutter 3.10
