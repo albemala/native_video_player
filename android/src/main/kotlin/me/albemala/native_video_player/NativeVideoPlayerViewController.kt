@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.view.View
 import android.widget.VideoView
+import android.widget.RelativeLayout
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.platform.PlatformView
 import me.albemala.native_video_player.platform_interface.*
@@ -23,6 +24,7 @@ class NativeVideoPlayerViewController(
 
     private var mediaPlayer: MediaPlayer? = null
     private val videoView: VideoView
+    private val relativeLayout: RelativeLayout
 
     init {
         api.delegate = this
@@ -33,10 +35,27 @@ class NativeVideoPlayerViewController(
         videoView.setOnPreparedListener(this)
         videoView.setOnCompletionListener(this)
         videoView.setOnErrorListener(this)
+
+        val layoutParams = RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.MATCH_PARENT,
+            RelativeLayout.LayoutParams.MATCH_PARENT
+        )
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        videoView.layoutParams = layoutParams
+
+        relativeLayout = RelativeLayout(context)
+        relativeLayout.layoutParams = RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.MATCH_PARENT,
+            RelativeLayout.LayoutParams.MATCH_PARENT
+        )
+        relativeLayout.addView(videoView)
     }
 
     override fun getView(): View {
-        return videoView
+        return relativeLayout
     }
 
     override fun dispose() {
