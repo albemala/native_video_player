@@ -47,7 +47,7 @@ extension NativeVideoPlayerViewController: NativeVideoPlayerApiDelegate {
         else {
             return
         }
-        let videoAsset = AVAsset(url: uri)
+        let videoAsset = isUrl ? AVURLAsset(url: uri, options: ["AVURLAssetHTTPHeaderFieldsKey": videoSource.headers]) : AVAsset(url: uri)
         let playerItem = AVPlayerItem(asset: videoAsset)
 
         removeOnVideoCompletedObserver()

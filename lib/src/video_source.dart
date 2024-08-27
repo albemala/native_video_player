@@ -16,6 +16,7 @@ class VideoSource {
   static Future<VideoSource> init({
     required String path,
     required VideoSourceType type,
+    Map<String, String>? headers,
   }) async {
     final String sourcePath;
     if (type == VideoSourceType.asset) {
@@ -25,9 +26,12 @@ class VideoSource {
       sourcePath = path;
     }
 
+    headers ??= {};
+
     return VideoSource(
       path: sourcePath,
       type: type,
+      headers: headers,
     );
   }
 
@@ -37,6 +41,9 @@ class VideoSource {
   /// Type of video source (asset, file, network).
   final VideoSourceType type;
 
+  /// Optional Headers to be used for network request
+  final Map<String, String> headers;
+
   /// A constructor for use in serialization.
   /// NOTE: This constructor is for internal use only.
   /// Please use [init] instead.
@@ -44,6 +51,7 @@ class VideoSource {
   VideoSource({
     required this.path,
     required this.type,
+    required this.headers,
   });
 
   factory VideoSource.fromJson(Map<String, dynamic> json) {

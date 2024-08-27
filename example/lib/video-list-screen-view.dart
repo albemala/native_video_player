@@ -93,6 +93,7 @@ class _VideoListItemViewState extends State<VideoListItemView> {
     final videoSource = await VideoSource.init(
       type: widget.videoSource.type,
       path: widget.videoSource.path,
+      headers: widget.videoSource.headers,
     );
     await _controller?.loadVideoSource(videoSource);
   }

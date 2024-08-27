@@ -3,10 +3,12 @@ import 'package:native_video_player/native_video_player.dart';
 class ExampleVideoSource {
   final String path;
   final VideoSourceType type;
+  final Map<String, String>? headers;
 
   ExampleVideoSource({
     required this.path,
     required this.type,
+    this.headers,
   });
 }
 
