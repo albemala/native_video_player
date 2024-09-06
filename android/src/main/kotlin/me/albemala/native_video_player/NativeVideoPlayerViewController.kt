@@ -88,7 +88,7 @@ class NativeVideoPlayerViewController(
         when (videoSource.type) {
             VideoSourceType.Asset -> videoView.setVideoPath(videoSource.path)
             VideoSourceType.File -> videoView.setVideoPath(videoSource.path)
-            VideoSourceType.Network -> videoView.setVideoURI(Uri.parse(videoSource.path))
+            VideoSourceType.Network -> videoView.setVideoURI(Uri.parse(videoSource.path), videoSource.headers)
         }
     }
 

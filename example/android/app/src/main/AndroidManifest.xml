@@ -2,7 +2,9 @@
     <application
         android:label="native_video_player_example"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"
+        >
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -30,4 +32,6 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

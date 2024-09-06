@@ -69,6 +69,7 @@ class VideoCarouselView extends StatelessWidget {
                   final videoSource = await VideoSource.init(
                     type: videoSources[index].type,
                     path: videoSources[index].path,
+                    headers: videoSources[index].headers,
                   );
                   await controller.loadVideoSource(videoSource);
                 },
@@ -153,6 +154,7 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
     return VideoSource.init(
       path: widget.videoSource.path,
       type: widget.videoSource.type,
+      headers: widget.videoSource.headers,
     );
   }
 
