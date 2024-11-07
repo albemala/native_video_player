@@ -44,6 +44,8 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
+
+    namespace 'me.albemala.native_video_player'
 }
 
 dependencies {
