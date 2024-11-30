@@ -16,7 +16,7 @@ class NativeVideoPlayerViewFactory(
     }
 
     override fun create(
-        context: Context?,
+        context: Context,
         viewId: Int,
         args: Any?
     ): PlatformView {
