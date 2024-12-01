@@ -80,11 +80,11 @@ class NativeVideoPlayerViewController(
 
     override fun getVideoInfo(): VideoInfo {
         val videoSize = player.videoSize
-        return VideoInfo(videoSize.height, videoSize.width, player.duration.toInt())
+        return VideoInfo(videoSize.height, videoSize.width, player.duration.toInt() / 1000)
     }
 
     override fun getPlaybackPosition(): Int {
-        return player.currentPosition.toInt()
+        return player.currentPosition.toInt() / 1000
     }
 
     override fun play() {
@@ -104,7 +104,7 @@ class NativeVideoPlayerViewController(
     }
 
     override fun seekTo(position: Int) {
-        player.seekTo(position.toLong())
+        player.seekTo(position.toLong() * 1000)
     }
 
     override fun setPlaybackSpeed(speed: Double) {
