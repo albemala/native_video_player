@@ -1,6 +1,7 @@
 package me.albemala.native_video_player
 
 import android.content.Context
+import android.view.SurfaceView
 import android.view.View
 import android.widget.RelativeLayout
 import androidx.annotation.OptIn
@@ -11,7 +12,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import androidx.media3.ui.PlayerView
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.platform.PlatformView
 import me.albemala.native_video_player.platform_interface.*
@@ -26,26 +26,26 @@ class NativeVideoPlayerViewController(
     Player.Listener {
 
     private val player: ExoPlayer
-    private val view: PlayerView
+    private val view: SurfaceView
     private val relativeLayout: RelativeLayout
 
     init {
         api.delegate = this
         player = ExoPlayer.Builder(context).build()
-        view = PlayerView(context)
-        view.player = player
-        view.setBackgroundColor(0)
         player.addListener(this)
 
+        view = SurfaceView(context)
+        view.setBackgroundColor(0)
         val layoutParams = RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.MATCH_PARENT,
             RelativeLayout.LayoutParams.MATCH_PARENT
         )
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
         view.layoutParams = layoutParams
+        player.setVideoSurfaceView(view)
 
         relativeLayout = RelativeLayout(context)
         relativeLayout.layoutParams = RelativeLayout.LayoutParams(
