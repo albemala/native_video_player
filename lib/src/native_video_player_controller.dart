@@ -51,9 +51,7 @@ class NativeVideoPlayerController with ChangeNotifier {
 
   /// Emitted when a playback error occurs
   /// or when it's not possible to load the video source
-  final onError = ValueNotifier<String?>(
-    null,
-  );
+  final onError = ValueNotifier<String?>(null);
 
   /// The video source that is currently loaded.
   VideoSource? get videoSource => _videoSource;
@@ -91,7 +89,7 @@ class NativeVideoPlayerController with ChangeNotifier {
   }
 
   Future<void> _onPlaybackEnded() async {
-    await stop();
+    onPlaybackStatusChanged.value = PlaybackStatus.stopped;
     onPlaybackEnded.notifyListeners();
   }
 
@@ -207,6 +205,11 @@ class NativeVideoPlayerController with ChangeNotifier {
     await _api.setVolume(volume);
     _volume = volume;
     onVolumeChanged.value = volume;
+  }
+
+  // ignore: avoid_positional_boolean_parameters
+  Future<void> setLoop(bool loop) {
+    return _api.setLoop(loop);
   }
 
   void _startPlaybackPositionTimer() {

@@ -1,11 +1,12 @@
-import Foundation
-import Flutter
 import AVFoundation
+import Flutter
+import Foundation
 
 public class NativeVideoPlayerViewController: NSObject, FlutterPlatformView {
     private let api: NativeVideoPlayerApi
     private let player: AVPlayer
     private let playerView: NativeVideoPlayerView
+    private var loop = false
 
     init(
         messenger: FlutterBinaryMessenger,
@@ -16,7 +17,7 @@ public class NativeVideoPlayerViewController: NSObject, FlutterPlatformView {
             messenger: messenger,
             viewId: viewId
         )
-        player = AVPlayer(playerItem: nil)
+        player = AVPlayer()
         playerView = NativeVideoPlayerView(frame: frame, player: player)
         super.init()
 
@@ -41,13 +42,17 @@ extension NativeVideoPlayerViewController: NativeVideoPlayerApiDelegate {
     func loadVideoSource(videoSource: VideoSource) {
         let isUrl = videoSource.type == .network
         let sourcePath = videoSource.path
-        guard let uri = isUrl
-            ? URL(string: sourcePath)
-            : URL(fileURLWithPath: sourcePath)
+        guard
+            let uri = isUrl
+                ? URL(string: sourcePath)
+                : URL(fileURLWithPath: sourcePath)
         else {
             return
         }
-        let videoAsset = isUrl ? AVURLAsset(url: uri, options: ["AVURLAssetHTTPHeaderFieldsKey": videoSource.headers]) : AVAsset(url: uri)
+        let videoAsset =
+            isUrl
+            ? AVURLAsset(url: uri, options: ["AVURLAssetHTTPHeaderFieldsKey": videoSource.headers])
+            : AVAsset(url: uri)
         let playerItem = AVPlayerItem(asset: videoAsset)
 
         removeOnVideoCompletedObserver()
@@ -67,6 +72,9 @@ extension NativeVideoPlayerViewController: NativeVideoPlayerApiDelegate {
     }
 
     func play() {
+        if player.currentItem?.currentTime() == player.currentItem?.duration {
+            player.seek(to: .zero, toleranceBefore: .zero, toleranceAfter: .zero)
+        }
         player.play()
     }
 
@@ -78,7 +86,7 @@ extension NativeVideoPlayerViewController: NativeVideoPlayerApiDelegate {
         player.pause()
         if #available(iOS 15, *) {
             // on iOS 15 or newer
-            player.seek(to: CMTime.zero) { _ in completion()}
+            player.seek(to: CMTime.zero) { _ in completion() }
         } else {
             player.seek(to: CMTime.zero)
             completion()
@@ -111,6 +119,10 @@ extension NativeVideoPlayerViewController: NativeVideoPlayerApiDelegate {
     func setVolume(volume: Double) {
         player.volume = Float(volume)
     }
+
+    func setLoop(loop: Bool) {
+        self.loop = loop
+    }
 }
 
 extension NativeVideoPlayerViewController {
@@ -134,7 +146,8 @@ extension NativeVideoPlayerViewController {
 
     private func getVideoTrack() -> AVAssetTrack? {
         if let tracks = player.currentItem?.asset.tracks(withMediaType: .video),
-           let track = tracks.first {
+            let track = tracks.first
+        {
             return track
         }
         return nil
@@ -149,7 +162,7 @@ extension NativeVideoPlayerViewController {
         context: UnsafeMutableRawPointer?
     ) {
         if keyPath == "status" {
-            switch (player.status) {
+            switch player.status {
             case .unknown:
                 break
             case .readyToPlay:
@@ -168,7 +181,12 @@ extension NativeVideoPlayerViewController {
 extension NativeVideoPlayerViewController {
     @objc
     private func onVideoCompleted(notification: NSNotification) {
-        api.onPlaybackEnded()
+        if loop {
+            player.seek(to: .zero, toleranceBefore: .zero, toleranceAfter: .zero)
+            player.play()
+        } else {
+            api.onPlaybackEnded()
+        }
     }
 
     private func addOnVideoCompletedObserver() {

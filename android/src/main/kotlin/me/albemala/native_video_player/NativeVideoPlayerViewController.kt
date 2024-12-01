@@ -65,7 +65,8 @@ class NativeVideoPlayerViewController(
         player.release()
     }
 
-    @OptIn(UnstableApi::class) override fun loadVideoSource(videoSource: VideoSource) {
+    @OptIn(UnstableApi::class)
+    override fun loadVideoSource(videoSource: VideoSource) {
         val mediaItem = MediaItem.fromUri(videoSource.path)
         when (videoSource.type) {
             VideoSourceType.Asset, VideoSourceType.File -> player.setMediaItem(mediaItem)
@@ -113,6 +114,10 @@ class NativeVideoPlayerViewController(
 
     override fun setVolume(volume: Double) {
         player.volume = volume.toFloat()
+    }
+
+    override fun setLoop(loop: Boolean) {
+        player.repeatMode = if (loop) Player.REPEAT_MODE_ALL else Player.REPEAT_MODE_OFF
     }
 
     override fun onPlaybackStateChanged(@Player.State state: Int) {

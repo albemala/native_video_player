@@ -9,9 +9,11 @@ protocol NativeVideoPlayerApiDelegate: AnyObject {
     func seekTo(position: Int, completion: @escaping () -> Void)
     func setPlaybackSpeed(speed: Double)
     func setVolume(volume: Double)
+    func setLoop(loop: Bool)
 }
 
-let invalidArgumentsFlutterError = FlutterError(code: "invalid_argument", message: "Invalid arguments", details: nil)
+let invalidArgumentsFlutterError = FlutterError(
+    code: "invalid_argument", message: "Invalid arguments", details: nil)
 
 class NativeVideoPlayerApi {
     weak var delegate: NativeVideoPlayerApiDelegate?
@@ -99,6 +101,13 @@ class NativeVideoPlayerApi {
                 return
             }
             delegate?.setVolume(volume: volume)
+            result(nil)
+        case "setLoop":
+            guard let loop = call.arguments as? Bool else {
+                result(invalidArgumentsFlutterError)
+                return
+            }
+            delegate?.setLoop(loop: loop)
             result(nil)
         default:
             result(FlutterMethodNotImplemented)

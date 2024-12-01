@@ -104,4 +104,12 @@ class NativeVideoPlayerApi {
       speed,
     );
   }
+
+  // ignore: avoid_positional_boolean_parameters
+  Future<void> setLoop(bool loop) async {
+    await _channel.invokeMethod<bool>(
+      'setLoop',
+      loop,
+    );
+  }
 }

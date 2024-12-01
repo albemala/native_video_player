@@ -15,6 +15,7 @@ interface NativeVideoPlayerApiDelegate {
     fun seekTo(position: Int)
     fun setPlaybackSpeed(speed: Double)
     fun setVolume(volume: Double)
+    fun setLoop(loop: Boolean)
 }
 
 const val invalidArgumentsErrorCode = "invalid_argument"
@@ -99,6 +100,12 @@ class NativeVideoPlayerApi(
                 val volume = methodCall.arguments as? Double
                     ?: return result.error(invalidArgumentsErrorCode, invalidArgumentsErrorMessage, null)
                 delegate?.setVolume(volume)
+                result.success(null)
+            }
+            "setLoop" -> {
+                val loop = methodCall.arguments as? Boolean
+                    ?: return result.error(invalidArgumentsErrorCode, invalidArgumentsErrorMessage, null)
+                delegate?.setLoop(loop)
                 result.success(null)
             }
             else -> {
