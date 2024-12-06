@@ -17,8 +17,7 @@ data class VideoSource(
                     headersAny.entries
                     .filter { it.key is String && it.value is String }
                     .associate { (it.key as String) to (it.value as String) }
-            val type = VideoSourceType
-                .values()
+            val type = VideoSourceType.entries
                 .firstOrNull {
                     it.value == typeValue
                 }

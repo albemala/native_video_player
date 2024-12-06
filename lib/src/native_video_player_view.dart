@@ -1,4 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:native_video_player/src/native_video_player_controller.dart';
 
@@ -41,23 +44,37 @@ class _NativeVideoPlayerViewState extends State<NativeVideoPlayerView> {
 
   Widget _buildNativeView() {
     const viewType = 'native_video_player_view';
-    // final Map<String, dynamic> creationParams = <String, dynamic>{};
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return AndroidView(
-        viewType: viewType,
-        onPlatformViewCreated: onPlatformViewCreated,
-        // creationParams: creationParams,
-        // creationParamsCodec: const StandardMessageCodec(),
-      );
-    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      return UiKitView(
-        viewType: viewType,
-        onPlatformViewCreated: onPlatformViewCreated,
-        // creationParams: creationParams,
-        // creationParamsCodec: const StandardMessageCodec(),
-      );
-    }
-    return Text('$defaultTargetPlatform is not yet supported by this plugin.');
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.iOS => UiKitView(
+          viewType: viewType,
+          onPlatformViewCreated: onPlatformViewCreated,
+        ),
+      TargetPlatform.android => PlatformViewLink(
+          viewType: viewType,
+          surfaceFactory: (context, controller) {
+            return AndroidViewSurface(
+              controller: controller as AndroidViewController,
+              gestureRecognizers: const <Factory<
+                  OneSequenceGestureRecognizer>>{},
+              hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+            );
+          },
+          onCreatePlatformView: (params) {
+            return PlatformViewsService.initSurfaceAndroidView(
+              id: params.id,
+              viewType: viewType,
+              layoutDirection: TextDirection.ltr,
+              onFocus: () {
+                params.onFocusChanged(true);
+              },
+            )
+              ..addOnPlatformViewCreatedListener(onPlatformViewCreated)
+              ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+              ..create();
+          },
+        ),
+      _ => Text('$defaultTargetPlatform is not yet supported by this plugin.')
+    };
   }
 
   /// This method is invoked by the platform view

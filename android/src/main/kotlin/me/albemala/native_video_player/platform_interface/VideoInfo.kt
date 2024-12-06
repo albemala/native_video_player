@@ -5,7 +5,7 @@ data class VideoInfo(
     val width: Int,
     val duration: Int
 ) {
-    fun toMap(): Map<String, Any> = mapOf(
+    fun toMap(): Map<String, Int> = mapOf(
         "height" to height,
         "width" to width,
         "duration" to duration
