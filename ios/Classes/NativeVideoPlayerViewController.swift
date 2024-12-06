@@ -48,6 +48,10 @@ extension NativeVideoPlayerViewController: NativeVideoPlayerApiDelegate {
             return
         }
         let videoAsset = isUrl ? AVURLAsset(url: uri, options: ["AVURLAssetHTTPHeaderFieldsKey": videoSource.headers]) : AVAsset(url: uri)
+        if !videoAsset.isPlayable {
+            api.onError(NSError(domain: "NativeVideoPlayer", code: -1, userInfo: [NSLocalizedDescriptionKey: "Video is not playable"]))
+            return
+        }
         let playerItem = AVPlayerItem(asset: videoAsset)
 
         removeOnVideoCompletedObserver()
