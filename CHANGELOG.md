@@ -1,3 +1,11 @@
+## 2.0.0
+
+- Added support for sending optional headers to the native players to stream videos behind authentication (thanks to @shenlong-tanwen)
+- Notify when video isn't playable on iOS (thanks to @ashilkn)
+- Upgrading to Gradle 8 (thanks to @Pablo-Aldana)
+- minSdkVersion on Android is now 21
+- Upgraded dependencies
+
 ## 1.3.1
 
 - Fixed #10 
