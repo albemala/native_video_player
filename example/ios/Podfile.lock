@@ -21,9 +21,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  native_video_player: d12af78a1a4a8cf09775a5177d5b392def6fd23c
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  native_video_player: b65c58951ede2f93d103a25366bdebca95081265
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
