@@ -85,7 +85,14 @@ See the [example app](https://github.com/albemala/native_video_player/tree/main/
 
 ## Support this project
 
-[Buy Me A Coffee](https://www.buymeacoffee.com/albemala)
+- [GitHub Sponsor](https://github.com/sponsors/albemala)
+- [Buy Me A Coffee](https://www.buymeacoffee.com/albemala)
+
+Sponsors:
+
+- [@enteio](https://github.com/enteio)
+
+Thank you to all sponsors for supporting this project! ❤️
 
 ## Other projects
 
