@@ -156,21 +156,7 @@ class NativeVideoPlayerViewController(
                 mediaPlayer?.playbackParams?.setSpeed(speed.toFloat()) ?: return
     }
 
-    override fun getPlaybackSpeed(): Double {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mediaPlayer?.playbackParams?.speed?.toDouble() ?: 1.0
-        } else {
-            1.0
-        }
-    }
-
     override fun setVolume(volume: Double) {
         mediaPlayer?.setVolume(volume.toFloat(), volume.toFloat())
-    }
-
-    override fun getVolume(): Double {
-        // Note: Android's MediaPlayer doesn't provide a direct way to get current volume
-        // This is a placeholder implementation
-        return 1.0
     }
 }

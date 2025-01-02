@@ -72,11 +72,7 @@ abstract class NativeVideoPlayerHostApi {
 
   void setVolume(double volume);
 
-  double getVolume();
-
   void setPlaybackSpeed(double speed);
-
-  double getPlaybackSpeed();
 }
 
 sealed class PlaybackEvent {

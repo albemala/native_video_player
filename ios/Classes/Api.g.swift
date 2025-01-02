@@ -382,9 +382,7 @@ protocol NativeVideoPlayerHostApi {
   func seekTo(position: Int64) throws
   func getPlaybackPosition() throws -> Int64
   func setVolume(volume: Double) throws
-  func getVolume() throws -> Double
   func setPlaybackSpeed(speed: Double) throws
-  func getPlaybackSpeed() throws -> Double
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -518,19 +516,6 @@ class NativeVideoPlayerHostApiSetup {
     } else {
       setVolumeChannel.setMessageHandler(nil)
     }
-    let getVolumeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_video_player.NativeVideoPlayerHostApi.getVolume\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      getVolumeChannel.setMessageHandler { _, reply in
-        do {
-          let result = try api.getVolume()
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
-        }
-      }
-    } else {
-      getVolumeChannel.setMessageHandler(nil)
-    }
     let setPlaybackSpeedChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_video_player.NativeVideoPlayerHostApi.setPlaybackSpeed\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       setPlaybackSpeedChannel.setMessageHandler { message, reply in
@@ -545,19 +530,6 @@ class NativeVideoPlayerHostApiSetup {
       }
     } else {
       setPlaybackSpeedChannel.setMessageHandler(nil)
-    }
-    let getPlaybackSpeedChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.native_video_player.NativeVideoPlayerHostApi.getPlaybackSpeed\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      getPlaybackSpeedChannel.setMessageHandler { _, reply in
-        do {
-          let result = try api.getPlaybackSpeed()
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
-        }
-      }
-    } else {
-      getPlaybackSpeedChannel.setMessageHandler(nil)
     }
   }
 }

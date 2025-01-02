@@ -372,9 +372,7 @@ interface NativeVideoPlayerHostApi {
   fun seekTo(position: Long)
   fun getPlaybackPosition(): Long
   fun setVolume(volume: Double)
-  fun getVolume(): Double
   fun setPlaybackSpeed(speed: Double)
-  fun getPlaybackSpeed(): Double
 
   companion object {
     /** The codec used by NativeVideoPlayerHostApi. */
@@ -535,21 +533,6 @@ interface NativeVideoPlayerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.native_video_player.NativeVideoPlayerHostApi.getVolume$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { _, reply ->
-            val wrapped: List<Any?> = try {
-              listOf(api.getVolume())
-            } catch (exception: Throwable) {
-              wrapError(exception)
-            }
-            reply.reply(wrapped)
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.native_video_player.NativeVideoPlayerHostApi.setPlaybackSpeed$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
@@ -558,21 +541,6 @@ interface NativeVideoPlayerHostApi {
             val wrapped: List<Any?> = try {
               api.setPlaybackSpeed(speedArg)
               listOf(null)
-            } catch (exception: Throwable) {
-              wrapError(exception)
-            }
-            reply.reply(wrapped)
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.native_video_player.NativeVideoPlayerHostApi.getPlaybackSpeed$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { _, reply ->
-            val wrapped: List<Any?> = try {
-              listOf(api.getPlaybackSpeed())
             } catch (exception: Throwable) {
               wrapError(exception)
             }

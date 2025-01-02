@@ -16,9 +16,9 @@ class NativeVideoPlayerController implements NativeVideoPlayerFlutterApi {
   VideoSource? _videoSource;
   VideoInfo? _videoInfo;
   PlaybackStatus _playbackStatus = PlaybackStatus.stopped;
+  int _playbackPosition = 0;
   double _playbackSpeed = 1;
   double _volume = 1;
-  int _playbackPosition = 0;
 
   /// A broadcast stream of playback events that can be listened to.
   ///
@@ -45,16 +45,6 @@ class NativeVideoPlayerController implements NativeVideoPlayerFlutterApi {
   /// Represents whether the video is currently playing, paused, or stopped.
   PlaybackStatus get playbackStatus => _playbackStatus;
 
-  /// The current playback speed of the video.
-  ///
-  /// A value of 1.0 represents normal playback speed.
-  double get playbackSpeed => _playbackSpeed;
-
-  /// The current volume level of the video.
-  ///
-  /// Ranges from 0.0 (muted) to 1.0 (full volume).
-  double get volume => _volume;
-
   /// The current playback position of the video in milliseconds.
   ///
   /// Represents the current timestamp of the video being played.
@@ -66,6 +56,16 @@ class NativeVideoPlayerController implements NativeVideoPlayerFlutterApi {
     if (duration == 0) return 0.0;
     return playbackPosition / duration;
   }
+
+  /// The current playback speed of the video.
+  ///
+  /// A value of 1.0 represents normal playback speed.
+  double get playbackSpeed => _playbackSpeed;
+
+  /// The current volume level of the video.
+  ///
+  /// Ranges from 0.0 (muted) to 1.0 (full volume).
+  double get volume => _volume;
 
   /// NOTE: For internal use only.
   /// See [NativeVideoPlayerView.onViewReady] instead.

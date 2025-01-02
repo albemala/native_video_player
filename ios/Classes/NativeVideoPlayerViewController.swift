@@ -79,11 +79,22 @@ extension NativeVideoPlayerViewController {
     }
 
     func getVideoInfo() throws -> VideoInfo {
+        guard 
+            let videoTrack = player.currentItem?.asset.tracks(withMediaType: .video).first,
+            let duration = player.currentItem?.asset.duration else {
+            return VideoInfo(height: 0, width: 0, duration: 0)
+        }
+        let durationInMilliseconds = duration.isValid 
+            ? duration.seconds * 1000 
+            : 0
+        
         return VideoInfo(
-            height: Int64(getVideoHeight()),
-            width: Int64(getVideoWidth()),
-            duration: Int64(getVideoDuration()))
+            height: Int64(videoTrack.naturalSize.height),
+            width: Int64(videoTrack.naturalSize.width),
+            duration: Int64(durationInMilliseconds)
+        )
     }
+
 
     func play(speed: Double) throws {
         player.rate = Float(speed)
@@ -95,7 +106,7 @@ extension NativeVideoPlayerViewController {
 
     func stop() throws {
         player.rate = 0.0
-        player.seek(to: CMTime.zero)
+        player.seek(to: .zero)
     }
 
     func isPlaying() throws -> Bool {
@@ -111,7 +122,7 @@ extension NativeVideoPlayerViewController {
     }
 
     func getPlaybackPosition() throws -> Int64 {
-        let currentTime = player.currentItem?.currentTime() ?? CMTime.zero
+        let currentTime = player.currentItem?.currentTime() ?? .zero
         let positionInMilliseconds = currentTime.isValid
             ? currentTime.seconds * 1000
             : 0
@@ -122,48 +133,8 @@ extension NativeVideoPlayerViewController {
         player.rate = Float(speed)
     }
 
-    func getPlaybackSpeed() throws -> Double {
-        return Double(player.rate)
-    }
-
     func setVolume(volume: Double) throws {
         player.volume = Float(volume)
-    }
-
-    func getVolume() throws -> Double {
-        return Double(player.volume)
-    }
-}
-
-extension NativeVideoPlayerViewController {
-    private func getVideoDuration() -> Int {
-        let duration = player.currentItem?.asset.duration ?? CMTime.zero
-        let durationInMilliseconds = duration.isValid
-            ? duration.seconds * 1000
-            : 0
-        return Int(durationInMilliseconds)
-    }
-
-    private func getVideoHeight() -> Int {
-        if let videoTrack = getVideoTrack() {
-            return Int(videoTrack.naturalSize.height)
-        }
-        return 0
-    }
-
-    private func getVideoWidth() -> Int {
-        if let videoTrack = getVideoTrack() {
-            return Int(videoTrack.naturalSize.width)
-        }
-        return 0
-    }
-
-    private func getVideoTrack() -> AVAssetTrack? {
-        if let tracks = player.currentItem?.asset.tracks(withMediaType: .video),
-           let track = tracks.first {
-            return track
-        }
-        return nil
     }
 }
 
