@@ -22,19 +22,21 @@ class VideoListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
+      itemCount: videoSources.length,
       itemBuilder: (context, index) {
         return VideoListItemView(
           videoSource: videoSources[index],
         );
       },
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
-      itemCount: videoSources.length,
+      separatorBuilder: (context, index) {
+        return const SizedBox(height: 16);
+      },
     );
   }
 }
 
 class VideoListItemView extends StatefulWidget {
-  final ExampleVideoSource videoSource;
+  final VideoSource videoSource;
 
   const VideoListItemView({
     super.key,
@@ -49,6 +51,13 @@ class _VideoListItemViewState extends State<VideoListItemView> {
   NativeVideoPlayerController? _controller;
 
   @override
+  void dispose() {
+    _controller?.dispose();
+    _controller = null;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 16 / 9,
@@ -58,13 +67,13 @@ class _VideoListItemViewState extends State<VideoListItemView> {
             onViewReady: (controller) async {
               _controller = controller;
               await _controller?.setVolume(1);
-              await _loadVideoSource();
+              await _controller?.loadVideo(widget.videoSource);
             },
           ),
           Material(
             type: MaterialType.transparency,
             child: InkWell(
-              onTap: _togglePlayback,
+              onTap: togglePlayback,
               child: Center(
                 child: FutureBuilder(
                   future: _isPlaying,
@@ -89,18 +98,8 @@ class _VideoListItemViewState extends State<VideoListItemView> {
     );
   }
 
-  Future<void> _loadVideoSource() async {
-    final videoSource = await VideoSource.init(
-      type: widget.videoSource.type,
-      path: widget.videoSource.path,
-      headers: widget.videoSource.headers,
-    );
-    await _controller?.loadVideoSource(videoSource);
-  }
-
-  Future<void> _togglePlayback() async {
-    final isPlaying = await _isPlaying;
-    if (isPlaying) {
+  Future<void> togglePlayback() async {
+    if (await _isPlaying) {
       await _controller?.pause();
     } else {
       await _controller?.play();
@@ -108,5 +107,12 @@ class _VideoListItemViewState extends State<VideoListItemView> {
     setState(() {});
   }
 
-  Future<bool> get _isPlaying async => await _controller?.isPlaying() ?? false;
+  Future<bool> get _isPlaying async {
+    final controller = _controller;
+    if (controller == null) {
+      return false;
+    } else {
+      return controller.isPlaying();
+    }
+  }
 }
