@@ -10,6 +10,21 @@ import 'package:native_video_player/src/controller.dart';
 /// On Android, the video is displayed using a combination
 /// of MediaPlayer and VideoView.
 class NativeVideoPlayerView extends StatefulWidget {
+  /// Callback that is triggered when the native video player view is ready.
+  ///
+  /// This callback provides a [NativeVideoPlayerController] instance that can be used
+  /// to control the video playback (play, pause, seek, etc.). The controller is
+  /// created after the native platform view has been successfully initialized.
+  ///
+  /// Example usage:
+  /// ```dart
+  /// NativeVideoPlayerView(
+  ///   onViewReady: (controller) {
+  ///     // Store the controller for later use
+  ///     _controller = controller;
+  ///   },
+  /// )
+  /// ```
   final void Function(NativeVideoPlayerController) onViewReady;
 
   const NativeVideoPlayerView({
