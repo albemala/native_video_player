@@ -132,6 +132,7 @@ class NativeVideoPlayerController implements NativeVideoPlayerFlutterApi {
   /// Starts/resumes the playback of the video.
   Future<void> play() async {
     await _hostApi.play(playbackSpeed);
+    await setVolume(volume);
     _startPlaybackPositionTimer();
     _setPlaybackStatus(PlaybackStatus.playing);
   }

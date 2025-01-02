@@ -1,52 +1,71 @@
 package me.albemala.native_video_player
 
+import NativeVideoPlayerFlutterApi
+import NativeVideoPlayerHostApi
+import PlaybackEndedEvent
+import PlaybackErrorEvent
+import PlaybackReadyEvent
+import VideoInfo
+import VideoSource
+import VideoSourceType
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.view.View
-import android.widget.VideoView
 import android.widget.RelativeLayout
+import android.widget.VideoView
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.platform.PlatformView
-import me.albemala.native_video_player.platform_interface.*
 
 class NativeVideoPlayerViewController(
-    messenger: BinaryMessenger,
+    private val messenger: BinaryMessenger,
     viewId: Int,
     context: Context?,
-    private val api: NativeVideoPlayerApi = NativeVideoPlayerApi(messenger, viewId),
 ) : PlatformView,
-    NativeVideoPlayerApiDelegate,
+    NativeVideoPlayerHostApi,
     MediaPlayer.OnPreparedListener,
     MediaPlayer.OnCompletionListener,
     MediaPlayer.OnErrorListener {
 
     private var mediaPlayer: MediaPlayer? = null
-    private val videoView: VideoView
-    private val relativeLayout: RelativeLayout
+
+    private val videoView: VideoView = VideoView(context)
+    private val relativeLayout: RelativeLayout = RelativeLayout(context)
+
+    private val flutterApi = NativeVideoPlayerFlutterApi(
+        messenger,
+        messageChannelSuffix = viewId.toString(),
+    )
 
     init {
-        api.delegate = this
-
-        videoView = VideoView(context)
-        videoView.setBackgroundColor(0)
-        // videoView.setZOrderOnTop(true)
         videoView.setOnPreparedListener(this)
         videoView.setOnCompletionListener(this)
         videoView.setOnErrorListener(this)
+
+        NativeVideoPlayerHostApi.setUp(
+            messenger,
+            this,
+            messageChannelSuffix = viewId.toString(),
+        )
+
+        initViews()
+    }
+
+    private fun initViews() {
+        videoView.setBackgroundColor(0)
+        // videoView.setZOrderOnTop(true)
 
         val layoutParams = RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.MATCH_PARENT,
             RelativeLayout.LayoutParams.MATCH_PARENT
         )
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
         videoView.layoutParams = layoutParams
 
-        relativeLayout = RelativeLayout(context)
         relativeLayout.layoutParams = RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.MATCH_PARENT,
             RelativeLayout.LayoutParams.MATCH_PARENT
@@ -60,52 +79,55 @@ class NativeVideoPlayerViewController(
 
     override fun dispose() {
         videoView.stopPlayback()
+
+        NativeVideoPlayerHostApi.setUp(messenger, null)
+
         videoView.setOnPreparedListener(null)
         videoView.setOnErrorListener(null)
         videoView.setOnCompletionListener(null)
-        api.dispose()
+
         mediaPlayer = null
     }
 
     override fun onPrepared(mediaPlayer: MediaPlayer?) {
         this.mediaPlayer = mediaPlayer
         videoView.seekTo(1)
-        api.onPlaybackReady()
+        flutterApi.onPlaybackEvent(PlaybackReadyEvent()) { _ -> }
     }
 
     override fun onCompletion(mediaPlayer: MediaPlayer?) {
-        api.onPlaybackEnded()
+        flutterApi.onPlaybackEvent(PlaybackEndedEvent()) { _ -> }
     }
 
     override fun onError(mediaPlayer: MediaPlayer?, what: Int, extra: Int): Boolean {
-        api.onError(Error("$what $extra"))
+        flutterApi.onPlaybackEvent(PlaybackErrorEvent("MediaPlayer error: $what, $extra")) { _ -> }
         return true
     }
 
-    override fun loadVideoSource(videoSource: VideoSource) {
+    override fun loadVideo(source: VideoSource) {
         videoView.stopPlayback()
         mediaPlayer = null
-        when (videoSource.type) {
-            VideoSourceType.Asset -> videoView.setVideoPath(videoSource.path)
-            VideoSourceType.File -> videoView.setVideoPath(videoSource.path)
-            VideoSourceType.Network -> videoView.setVideoURI(Uri.parse(videoSource.path), videoSource.headers)
+        when (source.type) {
+            VideoSourceType.ASSET -> videoView.setVideoPath(source.path)
+            VideoSourceType.FILE -> videoView.setVideoPath(source.path)
+            VideoSourceType.NETWORK -> videoView.setVideoURI(Uri.parse(source.path), source.headers)
         }
     }
 
     override fun getVideoInfo(): VideoInfo {
-        return VideoInfo(
-            mediaPlayer?.videoWidth ?: 0,
-            mediaPlayer?.videoHeight ?: 0,
-            videoView.duration / 1000
-        )
+        val height = mediaPlayer?.videoHeight?.toLong() ?: 0
+        val width = mediaPlayer?.videoWidth?.toLong() ?: 0
+        val duration = (videoView.duration).toLong()
+        return VideoInfo(height, width, duration)
     }
 
-    override fun getPlaybackPosition(): Int {
-        return videoView.currentPosition / 1000
+    override fun getPlaybackPosition(): Long {
+        return (videoView.currentPosition).toLong()
     }
 
-    override fun play() {
+    override fun play(speed: Double) {
         videoView.start()
+        setPlaybackSpeed(speed)
     }
 
     override fun pause() {
@@ -121,21 +143,34 @@ class NativeVideoPlayerViewController(
         return videoView.isPlaying
     }
 
-    override fun seekTo(position: Int) {
+    override fun seekTo(position: Long) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            mediaPlayer?.seekTo((position * 1000).toLong(), MediaPlayer.SEEK_CLOSEST)
+            mediaPlayer?.seekTo(position, MediaPlayer.SEEK_CLOSEST)
         else
-            videoView.seekTo(position * 1000)
+            videoView.seekTo(position.toInt())
     }
 
     override fun setPlaybackSpeed(speed: Double) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            mediaPlayer?.playbackParams = mediaPlayer?.playbackParams?.setSpeed(speed.toFloat()) ?: return
-        else
-            api.onError(Error("Playback speed is not supported on this device"))
+            mediaPlayer?.playbackParams =
+                mediaPlayer?.playbackParams?.setSpeed(speed.toFloat()) ?: return
+    }
+
+    override fun getPlaybackSpeed(): Double {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mediaPlayer?.playbackParams?.speed?.toDouble() ?: 1.0
+        } else {
+            1.0
+        }
     }
 
     override fun setVolume(volume: Double) {
         mediaPlayer?.setVolume(volume.toFloat(), volume.toFloat())
+    }
+
+    override fun getVolume(): Double {
+        // Note: Android's MediaPlayer doesn't provide a direct way to get current volume
+        // This is a placeholder implementation
+        return 1.0
     }
 }
