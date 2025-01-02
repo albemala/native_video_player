@@ -49,6 +49,7 @@ class VideoListItemView extends StatefulWidget {
 
 class _VideoListItemViewState extends State<VideoListItemView> {
   NativeVideoPlayerController? _controller;
+  bool _isPlaying = false;
 
   @override
   void dispose() {
@@ -75,20 +76,10 @@ class _VideoListItemViewState extends State<VideoListItemView> {
             child: InkWell(
               onTap: togglePlayback,
               child: Center(
-                child: FutureBuilder(
-                  future: _isPlaying,
-                  initialData: false,
-                  builder: (
-                    BuildContext context,
-                    AsyncSnapshot<bool> snapshot,
-                  ) {
-                    final isPlaying = snapshot.data ?? false;
-                    return Icon(
-                      isPlaying ? Icons.pause : Icons.play_arrow,
-                      size: 64,
-                      color: Colors.white,
-                    );
-                  },
+                child: Icon(
+                  _isPlaying ? Icons.pause : Icons.play_arrow,
+                  size: 64,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -99,20 +90,18 @@ class _VideoListItemViewState extends State<VideoListItemView> {
   }
 
   Future<void> togglePlayback() async {
-    if (await _isPlaying) {
-      await _controller?.pause();
-    } else {
-      await _controller?.play();
-    }
-    setState(() {});
-  }
-
-  Future<bool> get _isPlaying async {
     final controller = _controller;
-    if (controller == null) {
-      return false;
+    if (controller == null) return;
+
+    if (_isPlaying) {
+      await controller.pause();
     } else {
-      return controller.isPlaying();
+      await controller.play();
     }
+
+    final isPlaying = await controller.isPlaying();
+    setState(() {
+      _isPlaying = isPlaying;
+    });
   }
 }
