@@ -170,10 +170,13 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
           ],
         ),
         const SizedBox(height: 4),
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: NativeVideoPlayerView(
-            onViewReady: _initController,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: NativeVideoPlayerView(
+              onViewReady: _initController,
+            ),
           ),
         ),
         Slider(
@@ -283,25 +286,28 @@ class VideoCarouselView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: videoSources.length,
       itemBuilder: (context, index) {
-        return AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Stack(
-            children: [
-              NativeVideoPlayerView(
-                onViewReady: (controller) async {
-                  await controller.loadVideo(videoSources[index]);
-                },
-              ),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    onVideoSourceSelected(videoSources[index]);
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Stack(
+              children: [
+                NativeVideoPlayerView(
+                  onViewReady: (controller) async {
+                    await controller.loadVideo(videoSources[index]);
                   },
-                  child: Container(),
                 ),
-              ),
-            ],
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      onVideoSourceSelected(videoSources[index]);
+                    },
+                    child: Container(),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

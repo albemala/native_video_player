@@ -60,31 +60,34 @@ class _VideoListItemViewState extends State<VideoListItemView> {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Stack(
-        children: [
-          NativeVideoPlayerView(
-            onViewReady: (controller) async {
-              _controller = controller;
-              await _controller?.setVolume(1);
-              await _controller?.loadVideo(widget.videoSource);
-            },
-          ),
-          Material(
-            type: MaterialType.transparency,
-            child: InkWell(
-              onTap: togglePlayback,
-              child: Center(
-                child: Icon(
-                  _isPlaying ? Icons.pause : Icons.play_arrow,
-                  size: 64,
-                  color: Colors.white,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Stack(
+          children: [
+            NativeVideoPlayerView(
+              onViewReady: (controller) async {
+                _controller = controller;
+                await _controller?.setVolume(1);
+                await _controller?.loadVideo(widget.videoSource);
+              },
+            ),
+            Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                onTap: togglePlayback,
+                child: Center(
+                  child: Icon(
+                    _isPlaying ? Icons.pause : Icons.play_arrow,
+                    size: 64,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
