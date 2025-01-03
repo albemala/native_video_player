@@ -15,5 +15,6 @@ final videoSources = [
         'https://github.com/albemala/native_video_player/raw/refs/heads/main/example/assets/video/06.mp4',
     type: VideoSourceType.network,
   ),
+  VideoSource(path: 'assets/video/corrupted.mp4', type: VideoSourceType.asset),
   // VideoSource(path: 'assets/video/07.webm', type: VideoSourceType.asset),
 ];

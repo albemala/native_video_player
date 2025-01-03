@@ -87,8 +87,6 @@ extension NativeVideoPlayerViewController {
         player.replaceCurrentItem(with: playerItem)
 
         addPlayerItemObservers()
-
-//        api.onPlaybackReady()
     }
 
     func getVideoInfo() throws -> VideoInfo {
