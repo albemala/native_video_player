@@ -1,3 +1,13 @@
+## 3.0.0-dev.1
+
+- Targeting Dart 3.5 and Flutter 3.24
+- API redesign using events instead of callbacks
+- Removed `PlaybackInfo` class - all information now accessible directly from controller
+- Controllers must now be explicitly disposed using `dispose()` method
+- Removed `init` constructor from `VideoSource` class
+- `seekTo` and playback position values now use `Duration` instead of seconds (#26)
+- Fixed audio playback on iOS when device is in silent mode (#22)
+
 ## 2.0.0
 
 - Added support for sending optional headers to the native players to stream videos behind authentication (thanks to @shenlong-tanwen)
