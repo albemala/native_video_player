@@ -82,7 +82,7 @@ extension NativeVideoPlayerViewController {
         guard 
             let videoTrack = player.currentItem?.asset.tracks(withMediaType: .video).first,
             let duration = player.currentItem?.asset.duration else {
-            return VideoInfo(height: 0, width: 0, duration: 0)
+            return VideoInfo(height: 0, width: 0, durationInMilliseconds: 0)
         }
         let durationInMilliseconds = duration.isValid 
             ? duration.seconds * 1000 
@@ -91,7 +91,7 @@ extension NativeVideoPlayerViewController {
         return VideoInfo(
             height: Int64(videoTrack.naturalSize.height),
             width: Int64(videoTrack.naturalSize.width),
-            duration: Int64(durationInMilliseconds)
+            durationInMilliseconds: Int64(durationInMilliseconds)
         )
     }
 

@@ -1,4 +1,4 @@
-String formatTime(int milliseconds) {
+String formatTime(Duration time) {
   String formatDigits(
     int n, {
     required int digits,
@@ -6,17 +6,16 @@ String formatTime(int milliseconds) {
     return n.toString().padLeft(digits, '0');
   }
 
-  final duration = Duration(milliseconds: milliseconds);
   final formattedMinutes = formatDigits(
-    duration.inMinutes.remainder(60),
+    time.inMinutes.remainder(60),
     digits: 2,
   );
   final formattedSeconds = formatDigits(
-    duration.inSeconds.remainder(60),
+    time.inSeconds.remainder(60),
     digits: 2,
   );
   final formattedMillis = formatDigits(
-    duration.inMilliseconds.remainder(1000),
+    time.inMilliseconds.remainder(1000),
     digits: 3,
   );
   return '$formattedMinutes:$formattedSeconds.$formattedMillis';

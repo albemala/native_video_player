@@ -181,19 +181,21 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
         ),
         Slider(
           // min: 0,
-          max: (_controller?.videoInfo?.duration ?? 0).toDouble(),
-          value: (_controller?.playbackPosition ?? 0).toDouble(),
-          onChanged: (value) => _controller?.seekTo(value.toInt()),
+          max: _controller?.videoInfo?.duration.inMilliseconds.toDouble() ?? 0,
+          value: _controller?.playbackPosition.inMilliseconds.toDouble() ?? 0,
+          onChanged: (value) {
+            _controller?.seekTo(Duration(milliseconds: value.toInt()));
+          },
         ),
         const SizedBox(height: 4),
         Row(
           children: [
             Text(
-              formatTime(_controller?.playbackPosition ?? 0),
+              formatTime(_controller?.playbackPosition ?? Duration.zero),
             ),
             const Spacer(),
             Text(
-              formatTime(_controller?.videoInfo?.duration ?? 0),
+              formatTime(_controller?.videoInfo?.duration ?? Duration.zero),
             ),
           ],
         ),
@@ -214,11 +216,15 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
             const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.fast_rewind),
-              onPressed: () => _controller?.seekBackward(5000),
+              onPressed: () {
+                _controller?.seekBackward(const Duration(seconds: 5));
+              },
             ),
             IconButton(
               icon: const Icon(Icons.fast_forward),
-              onPressed: () => _controller?.seekForward(5000),
+              onPressed: () {
+                _controller?.seekForward(const Duration(seconds: 5));
+              },
             ),
             const Spacer(),
             _buildPlaybackStatusView(),

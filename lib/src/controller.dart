@@ -16,7 +16,7 @@ class NativeVideoPlayerController implements NativeVideoPlayerFlutterApi {
   VideoSource? _videoSource;
   VideoInfo? _videoInfo;
   PlaybackStatus _playbackStatus = PlaybackStatus.stopped;
-  int _playbackPosition = 0;
+  Duration _playbackPosition = Duration.zero;
   double _playbackSpeed = 1;
   double _volume = 1;
 
@@ -48,13 +48,13 @@ class NativeVideoPlayerController implements NativeVideoPlayerFlutterApi {
   /// The current playback position of the video in milliseconds.
   ///
   /// Represents the current timestamp of the video being played.
-  int get playbackPosition => _playbackPosition;
+  Duration get playbackPosition => _playbackPosition;
 
   /// Returns the current playback progress as a value between 0.0 and 1.0
   Future<double> get playbackProgress async {
-    final duration = videoInfo?.duration ?? 0;
-    if (duration == 0) return 0.0;
-    return playbackPosition / duration;
+    final durationInMilliseconds = videoInfo?.durationInMilliseconds ?? 0;
+    if (durationInMilliseconds == 0) return 0.0;
+    return playbackPosition.inMilliseconds / durationInMilliseconds;
   }
 
   /// The current playback speed of the video.
@@ -105,7 +105,9 @@ class NativeVideoPlayerController implements NativeVideoPlayerFlutterApi {
       case VolumeChangedEvent():
         _volume = event.volume;
       case PlaybackPositionChangedEvent():
-        _playbackPosition = event.position;
+        _playbackPosition = Duration(
+          milliseconds: event.positionInMilliseconds,
+        );
       case PlaybackReadyEvent():
         _videoInfo = await _hostApi.getVideoInfo();
       case PlaybackEndedEvent():
@@ -164,26 +166,40 @@ class NativeVideoPlayerController implements NativeVideoPlayerFlutterApi {
     }
   }
 
-  /// Moves the playback position to the given position in milliseconds.
-  Future<void> seekTo(int milliseconds) async {
-    var position = milliseconds;
-    if (position < 0) position = 0;
-    final duration = videoInfo?.duration ?? 0;
-    if (position > duration) position = duration;
-    await _hostApi.seekTo(position);
-    _emitPositionEvent(position);
+  /// Moves the playback position to the given position.
+  Future<void> seekTo(Duration position) async {
+    var positionInMilliseconds = position.inMilliseconds;
+    if (positionInMilliseconds < 0) {
+      positionInMilliseconds = 0;
+    }
+    final durationInMilliseconds = videoInfo?.durationInMilliseconds ?? 0;
+    if (positionInMilliseconds > durationInMilliseconds) {
+      positionInMilliseconds = durationInMilliseconds;
+    }
+    await _hostApi.seekTo(positionInMilliseconds);
+    _emitPositionEvent(positionInMilliseconds);
   }
 
-  /// Seeks the video forward by the given number of milliseconds.
-  Future<void> seekForward(int milliseconds) async {
-    final duration = videoInfo?.duration ?? 0;
-    final position = min(_playbackPosition + milliseconds, duration);
+  /// Seeks the video forward by the given amount.
+  Future<void> seekForward(Duration amount) async {
+    final durationInMilliseconds = videoInfo?.durationInMilliseconds ?? 0;
+    final amountInMilliseconds = amount.inMilliseconds;
+    final positionInMilliseconds = min(
+      _playbackPosition.inMilliseconds + amountInMilliseconds,
+      durationInMilliseconds,
+    );
+    final position = Duration(milliseconds: positionInMilliseconds);
     await seekTo(position);
   }
 
-  /// Seeks the video backward by the given number of milliseconds.
-  Future<void> seekBackward(int milliseconds) async {
-    final position = max(0, _playbackPosition - milliseconds);
+  /// Seeks the video backward by the given amount.
+  Future<void> seekBackward(Duration amount) async {
+    final amountInMilliseconds = amount.inMilliseconds;
+    final positionInMilliseconds = max(
+      _playbackPosition.inMilliseconds - amountInMilliseconds,
+      0,
+    );
+    final position = Duration(milliseconds: positionInMilliseconds);
     await seekTo(position);
   }
 
@@ -225,11 +241,15 @@ extension PlaybackPositionTimer on NativeVideoPlayerController {
   }
 
   Future<void> _onPlaybackPositionTimerChanged(Timer? timer) async {
-    final position = await _hostApi.getPlaybackPosition();
-    _emitPositionEvent(position);
+    final positionInMilliseconds = await _hostApi.getPlaybackPosition();
+    _emitPositionEvent(positionInMilliseconds);
   }
 
-  void _emitPositionEvent(int position) {
-    onPlaybackEvent(PlaybackPositionChangedEvent(position: position));
+  void _emitPositionEvent(int positionInMilliseconds) {
+    onPlaybackEvent(
+      PlaybackPositionChangedEvent(
+        positionInMilliseconds: positionInMilliseconds,
+      ),
+    );
   }
 }

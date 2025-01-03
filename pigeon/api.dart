@@ -37,12 +37,12 @@ class VideoSource {
 class VideoInfo {
   final int height;
   final int width;
-  final int duration;
+  final int durationInMilliseconds;
 
   VideoInfo({
     required this.height,
     required this.width,
-    required this.duration,
+    required this.durationInMilliseconds,
   });
 }
 
@@ -86,9 +86,9 @@ class PlaybackStatusChangedEvent extends PlaybackEvent {
 }
 
 class PlaybackPositionChangedEvent extends PlaybackEvent {
-  final int position;
+  final int positionInMilliseconds;
 
-  const PlaybackPositionChangedEvent(this.position);
+  const PlaybackPositionChangedEvent(this.positionInMilliseconds);
 }
 
 class PlaybackSpeedChangedEvent extends PlaybackEvent {

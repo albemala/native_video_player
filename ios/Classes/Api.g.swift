@@ -112,26 +112,26 @@ struct VideoSource {
 struct VideoInfo {
   var height: Int64
   var width: Int64
-  var duration: Int64
+  var durationInMilliseconds: Int64
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
   static func fromList(_ pigeonVar_list: [Any?]) -> VideoInfo? {
     let height = pigeonVar_list[0] as! Int64
     let width = pigeonVar_list[1] as! Int64
-    let duration = pigeonVar_list[2] as! Int64
+    let durationInMilliseconds = pigeonVar_list[2] as! Int64
 
     return VideoInfo(
       height: height,
       width: width,
-      duration: duration
+      durationInMilliseconds: durationInMilliseconds
     )
   }
   func toList() -> [Any?] {
     return [
       height,
       width,
-      duration,
+      durationInMilliseconds,
     ]
   }
 }
@@ -164,20 +164,20 @@ struct PlaybackStatusChangedEvent: PlaybackEvent {
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct PlaybackPositionChangedEvent: PlaybackEvent {
-  var position: Int64
+  var positionInMilliseconds: Int64
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
   static func fromList(_ pigeonVar_list: [Any?]) -> PlaybackPositionChangedEvent? {
-    let position = pigeonVar_list[0] as! Int64
+    let positionInMilliseconds = pigeonVar_list[0] as! Int64
 
     return PlaybackPositionChangedEvent(
-      position: position
+      positionInMilliseconds: positionInMilliseconds
     )
   }
   func toList() -> [Any?] {
     return [
-      position
+      positionInMilliseconds
     ]
   }
 }

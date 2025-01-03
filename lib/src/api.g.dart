@@ -72,20 +72,20 @@ class VideoInfo {
   VideoInfo({
     required this.height,
     required this.width,
-    required this.duration,
+    required this.durationInMilliseconds,
   });
 
   int height;
 
   int width;
 
-  int duration;
+  int durationInMilliseconds;
 
   Object encode() {
     return <Object?>[
       height,
       width,
-      duration,
+      durationInMilliseconds,
     ];
   }
 
@@ -94,7 +94,7 @@ class VideoInfo {
     return VideoInfo(
       height: result[0]! as int,
       width: result[1]! as int,
-      duration: result[2]! as int,
+      durationInMilliseconds: result[2]! as int,
     );
   }
 }
@@ -125,21 +125,21 @@ class PlaybackStatusChangedEvent extends PlaybackEvent {
 
 class PlaybackPositionChangedEvent extends PlaybackEvent {
   PlaybackPositionChangedEvent({
-    required this.position,
+    required this.positionInMilliseconds,
   });
 
-  int position;
+  int positionInMilliseconds;
 
   Object encode() {
     return <Object?>[
-      position,
+      positionInMilliseconds,
     ];
   }
 
   static PlaybackPositionChangedEvent decode(Object result) {
     result as List<Object?>;
     return PlaybackPositionChangedEvent(
-      position: result[0]! as int,
+      positionInMilliseconds: result[0]! as int,
     );
   }
 }

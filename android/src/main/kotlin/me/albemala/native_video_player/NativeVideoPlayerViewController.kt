@@ -117,8 +117,8 @@ class NativeVideoPlayerViewController(
     override fun getVideoInfo(): VideoInfo {
         val height = mediaPlayer?.videoHeight?.toLong() ?: 0
         val width = mediaPlayer?.videoWidth?.toLong() ?: 0
-        val duration = (videoView.duration).toLong()
-        return VideoInfo(height, width, duration)
+        val durationInMilliseconds = (videoView.duration).toLong()
+        return VideoInfo(height, width, durationInMilliseconds)
     }
 
     override fun getPlaybackPosition(): Long {

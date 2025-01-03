@@ -100,22 +100,22 @@ data class VideoSource (
 data class VideoInfo (
   val height: Long,
   val width: Long,
-  val duration: Long
+  val durationInMilliseconds: Long
 )
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): VideoInfo {
       val height = pigeonVar_list[0] as Long
       val width = pigeonVar_list[1] as Long
-      val duration = pigeonVar_list[2] as Long
-      return VideoInfo(height, width, duration)
+      val durationInMilliseconds = pigeonVar_list[2] as Long
+      return VideoInfo(height, width, durationInMilliseconds)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
       height,
       width,
-      duration,
+      durationInMilliseconds,
     )
   }
 }
@@ -145,18 +145,18 @@ data class PlaybackStatusChangedEvent (
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class PlaybackPositionChangedEvent (
-  val position: Long
+  val positionInMilliseconds: Long
 ) : PlaybackEvent()
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): PlaybackPositionChangedEvent {
-      val position = pigeonVar_list[0] as Long
-      return PlaybackPositionChangedEvent(position)
+      val positionInMilliseconds = pigeonVar_list[0] as Long
+      return PlaybackPositionChangedEvent(positionInMilliseconds)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
-      position,
+      positionInMilliseconds,
     )
   }
 }
