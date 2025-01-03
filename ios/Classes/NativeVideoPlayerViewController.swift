@@ -27,6 +27,19 @@ public class NativeVideoPlayerViewController: NSObject, FlutterPlatformView, Nat
             messageChannelSuffix: String(viewId))
 
         player.addObserver(self, forKeyPath: "status", context: nil)
+
+        // Allow audio playback when the Ring/Silent switch is set to silent
+        do {
+            try AVAudioSession.sharedInstance().setCategory(
+                .playback,
+                mode: .default,
+                options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            flutterApi.onPlaybackEvent(
+                event: PlaybackErrorEvent(errorMessage: "Failed to set audio session category: \(error.localizedDescription)")
+            ) { _ in }
+        }
     }
 
     deinit {
