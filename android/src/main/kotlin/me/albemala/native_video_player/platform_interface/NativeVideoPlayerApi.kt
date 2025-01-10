@@ -48,7 +48,7 @@ class NativeVideoPlayerApi(
         channel.invokeMethod("onPlaybackEnded", null)
     }
 
-    fun onError(error: Error) {
+    fun onError(error: Throwable) {
         channel.invokeMethod("onError", error.message)
     }
 

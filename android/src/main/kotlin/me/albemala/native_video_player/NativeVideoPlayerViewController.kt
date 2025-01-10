@@ -134,7 +134,7 @@ class NativeVideoPlayerViewController(
         if (error.cause == null) {
             api.onError(Error("Unknown playback error occurred"))
         } else {
-            api.onError(error.cause as Error)
+            api.onError(error.cause as Throwable)
         }
     }
 }
