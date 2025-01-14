@@ -1,3 +1,8 @@
+## 3.0.0-dev.2
+
+- Improved error reporting on android
+- Improved example
+
 ## 3.0.0-dev.1
 
 - Targeting Dart 3.5 and Flutter 3.24
