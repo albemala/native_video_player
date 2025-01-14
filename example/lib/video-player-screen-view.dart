@@ -31,6 +31,7 @@ class _VideoPlayerScreenViewState extends State<VideoPlayerScreenView> {
           SizedBox(
             height: 128,
             child: VideoCarouselView(
+              selectedVideoSource: _selectedVideoSource,
               onVideoSourceSelected: (videoSource) {
                 setState(() {
                   _selectedVideoSource = videoSource;
@@ -139,7 +140,8 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
   }
 
   void _onPlaybackError(PlaybackErrorEvent event) {
-    print('Playback error: ${event.errorMessage}');
+    print('''
+Playback error: ${event.errorMessage} (video source: ${widget.videoSource.path})''');
   }
 
   @override
@@ -278,10 +280,12 @@ Speed: ${_controller?.playbackSpeed.toStringAsFixed(2)}'''),
 }
 
 class VideoCarouselView extends StatelessWidget {
+  final VideoSource selectedVideoSource;
   final void Function(VideoSource) onVideoSourceSelected;
 
   const VideoCarouselView({
     super.key,
+    required this.selectedVideoSource,
     required this.onVideoSourceSelected,
   });
 
@@ -292,6 +296,7 @@ class VideoCarouselView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: videoSources.length,
       itemBuilder: (context, index) {
+        final videoSource = videoSources[index];
         return ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: AspectRatio(
@@ -300,18 +305,26 @@ class VideoCarouselView extends StatelessWidget {
               children: [
                 NativeVideoPlayerView(
                   onViewReady: (controller) async {
-                    await controller.loadVideo(videoSources[index]);
+                    await controller.loadVideo(videoSource);
                   },
                 ),
                 Material(
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () {
-                      onVideoSourceSelected(videoSources[index]);
+                      onVideoSourceSelected(videoSource);
                     },
                     child: Container(),
                   ),
                 ),
+                if (videoSource == selectedVideoSource)
+                  const Center(
+                    child: Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 48,
+                    ),
+                  ),
               ],
             ),
           ),
