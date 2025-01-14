@@ -100,7 +100,31 @@ class NativeVideoPlayerViewController(
     }
 
     override fun onError(mediaPlayer: MediaPlayer?, what: Int, extra: Int): Boolean {
-        flutterApi.onPlaybackEvent(PlaybackErrorEvent("MediaPlayer error: $what, $extra")) { _ -> }
+        // what:
+        // MEDIA_ERROR_UNKNOWN = 1;
+        // MEDIA_ERROR_SERVER_DIED = 100;
+        val whatString = when (what) {
+            1 -> "MEDIA_ERROR_UNKNOWN"
+            100 -> "MEDIA_ERROR_SERVER_DIED"
+            200 -> "MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK"
+            else -> "Unknown error"
+        }
+        // extra:
+        // MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK = 200;
+        // MEDIA_ERROR_IO = -1004;
+        // MEDIA_ERROR_MALFORMED = -1007;
+        // MEDIA_ERROR_UNSUPPORTED = -1010;
+        // MEDIA_ERROR_TIMED_OUT = -110;
+        // MEDIA_ERROR_SYSTEM = -2147483648;
+        val extraString = when (extra) {
+            -1004 -> "MEDIA_ERROR_IO"
+            -1007 -> "MEDIA_ERROR_MALFORMED"
+            -1010 -> "MEDIA_ERROR_UNSUPPORTED"
+            -110 -> "MEDIA_ERROR_TIMED_OUT"
+            -2147483648 -> "MEDIA_ERROR_SYSTEM"
+            else -> "Unknown error"
+        }
+        flutterApi.onPlaybackEvent(PlaybackErrorEvent("MediaPlayer error: $whatString, $extraString")) { _ -> }
         return true
     }
 
