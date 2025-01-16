@@ -9,12 +9,18 @@ import VideoInfo
 import VideoSource
 import VideoSourceType
 import android.content.Context
-import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
+import android.view.SurfaceView
 import android.view.View
 import android.widget.RelativeLayout
-import android.widget.VideoView
+import androidx.annotation.OptIn
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.platform.PlatformView
 
@@ -22,15 +28,10 @@ class NativeVideoPlayerViewController(
     private val messenger: BinaryMessenger,
     viewId: Int,
     context: Context?,
-) : PlatformView,
-    NativeVideoPlayerHostApi,
-    MediaPlayer.OnPreparedListener,
-    MediaPlayer.OnCompletionListener,
-    MediaPlayer.OnErrorListener {
+) : PlatformView, NativeVideoPlayerHostApi, Player.Listener {
 
-    private var mediaPlayer: MediaPlayer? = null
-
-    private val videoView: VideoView = VideoView(context)
+    private val player: ExoPlayer = ExoPlayer.Builder(context!!).build()
+    private val view: SurfaceView = SurfaceView(context)
     private val relativeLayout: RelativeLayout = RelativeLayout(context)
 
     private val flutterApi = NativeVideoPlayerFlutterApi(
@@ -38,23 +39,22 @@ class NativeVideoPlayerViewController(
         messageChannelSuffix = viewId.toString(),
     )
 
-    init {
-        videoView.setOnPreparedListener(this)
-        videoView.setOnCompletionListener(this)
-        videoView.setOnErrorListener(this)
+    override fun getView(): View {
+        return relativeLayout
+    }
 
+    init {
         NativeVideoPlayerHostApi.setUp(
             messenger,
             this,
             messageChannelSuffix = viewId.toString(),
         )
-
+        player.addListener(this)
         initViews()
     }
 
     private fun initViews() {
-        videoView.setBackgroundColor(0)
-        // videoView.setZOrderOnTop(true)
+        view.setBackgroundColor(0)
 
         val layoutParams = RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -64,123 +64,95 @@ class NativeVideoPlayerViewController(
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
-        videoView.layoutParams = layoutParams
+        view.layoutParams = layoutParams
+        player.setVideoSurfaceView(view)
 
         relativeLayout.layoutParams = RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.MATCH_PARENT,
             RelativeLayout.LayoutParams.MATCH_PARENT
         )
-        relativeLayout.addView(videoView)
-    }
-
-    override fun getView(): View {
-        return relativeLayout
+        relativeLayout.addView(view)
     }
 
     override fun dispose() {
-        videoView.stopPlayback()
-
         NativeVideoPlayerHostApi.setUp(messenger, null)
-
-        videoView.setOnPreparedListener(null)
-        videoView.setOnErrorListener(null)
-        videoView.setOnCompletionListener(null)
-
-        mediaPlayer = null
+        player.removeListener(this)
+        player.release()
     }
 
-    override fun onPrepared(mediaPlayer: MediaPlayer?) {
-        this.mediaPlayer = mediaPlayer
-        videoView.seekTo(1)
-        flutterApi.onPlaybackEvent(PlaybackReadyEvent()) { _ -> }
-    }
-
-    override fun onCompletion(mediaPlayer: MediaPlayer?) {
-        flutterApi.onPlaybackEvent(PlaybackEndedEvent()) { _ -> }
-    }
-
-    override fun onError(mediaPlayer: MediaPlayer?, what: Int, extra: Int): Boolean {
-        // what:
-        // MEDIA_ERROR_UNKNOWN = 1;
-        // MEDIA_ERROR_SERVER_DIED = 100;
-        val whatString = when (what) {
-            1 -> "MEDIA_ERROR_UNKNOWN"
-            100 -> "MEDIA_ERROR_SERVER_DIED"
-            200 -> "MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK"
-            else -> "Unknown error"
+    override fun onPlaybackStateChanged(state: Int) {
+        when (state) {
+            Player.STATE_READY -> flutterApi.onPlaybackEvent(PlaybackReadyEvent()) { _ -> }
+            Player.STATE_ENDED -> flutterApi.onPlaybackEvent(PlaybackEndedEvent()) { _ -> }
+            Player.STATE_BUFFERING -> {}
+            Player.STATE_IDLE -> {}
         }
-        // extra:
-        // MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK = 200;
-        // MEDIA_ERROR_IO = -1004;
-        // MEDIA_ERROR_MALFORMED = -1007;
-        // MEDIA_ERROR_UNSUPPORTED = -1010;
-        // MEDIA_ERROR_TIMED_OUT = -110;
-        // MEDIA_ERROR_SYSTEM = -2147483648;
-        val extraString = when (extra) {
-            -1004 -> "MEDIA_ERROR_IO"
-            -1007 -> "MEDIA_ERROR_MALFORMED"
-            -1010 -> "MEDIA_ERROR_UNSUPPORTED"
-            -110 -> "MEDIA_ERROR_TIMED_OUT"
-            -2147483648 -> "MEDIA_ERROR_SYSTEM"
-            else -> "Unknown error"
-        }
-        flutterApi.onPlaybackEvent(PlaybackErrorEvent("MediaPlayer error: $whatString, $extraString")) { _ -> }
-        return true
     }
 
+    override fun onPlayerError(error: PlaybackException) {
+        val errorMessage = error.cause?.message ?: "Unknown playback error occurred"
+        flutterApi.onPlaybackEvent(PlaybackErrorEvent(errorMessage)) { _ -> }
+    }
+
+    @OptIn(UnstableApi::class)
     override fun loadVideo(source: VideoSource) {
-        videoView.stopPlayback()
-        mediaPlayer = null
+        player.stop()
         when (source.type) {
-            VideoSourceType.ASSET -> videoView.setVideoPath(source.path)
-            VideoSourceType.FILE -> videoView.setVideoPath(source.path)
-            VideoSourceType.NETWORK -> videoView.setVideoURI(Uri.parse(source.path), source.headers)
+            VideoSourceType.ASSET,
+            VideoSourceType.FILE -> {
+                val mediaItem = MediaItem.fromUri(source.path)
+                player.setMediaItem(mediaItem)
+            }
+
+            VideoSourceType.NETWORK -> {
+                val mediaItem = MediaItem.fromUri(Uri.parse(source.path))
+                val headers = source.headers ?: mapOf()
+                val dataSource =
+                    DefaultHttpDataSource.Factory().setDefaultRequestProperties(headers)
+                val mediaSource =
+                    ProgressiveMediaSource.Factory(dataSource).createMediaSource(mediaItem)
+                player.setMediaSource(mediaSource)
+            }
         }
+        player.prepare()
     }
 
     override fun getVideoInfo(): VideoInfo {
-        val height = mediaPlayer?.videoHeight?.toLong() ?: 0
-        val width = mediaPlayer?.videoWidth?.toLong() ?: 0
-        val durationInMilliseconds = (videoView.duration).toLong()
-        return VideoInfo(height, width, durationInMilliseconds)
+        val videoSize = player.videoSize
+        return VideoInfo(videoSize.height.toLong(), videoSize.width.toLong(), player.duration)
     }
 
     override fun getPlaybackPosition(): Long {
-        return (videoView.currentPosition).toLong()
+        return player.currentPosition
     }
 
     override fun play(speed: Double) {
-        videoView.start()
+        player.play()
         setPlaybackSpeed(speed)
     }
 
     override fun pause() {
-        videoView.pause()
+        player.pause()
     }
 
     override fun stop() {
-        videoView.pause()
-        videoView.seekTo(0)
+        player.pause()
+        player.seekTo(0)
     }
 
     override fun isPlaying(): Boolean {
-        return videoView.isPlaying
+        return player.isPlaying
     }
 
     override fun seekTo(position: Long) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            mediaPlayer?.seekTo(position, MediaPlayer.SEEK_CLOSEST)
-        else
-            videoView.seekTo(position.toInt())
+        player.seekTo(position)
     }
 
     override fun setPlaybackSpeed(speed: Double) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            mediaPlayer?.playbackParams =
-                mediaPlayer?.playbackParams?.setSpeed(speed.toFloat()) ?: return
+        player.setPlaybackSpeed(speed.toFloat())
     }
 
     override fun setVolume(volume: Double) {
-        mediaPlayer?.setVolume(volume.toFloat(), volume.toFloat())
+        player.volume = volume.toFloat()
     }
 }
