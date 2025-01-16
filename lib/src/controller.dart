@@ -105,8 +105,13 @@ class NativeVideoPlayerController implements NativeVideoPlayerFlutterApi {
       case VolumeChangedEvent():
         _volume = event.volume;
       case PlaybackPositionChangedEvent():
+        final durationInMilliseconds = videoInfo?.durationInMilliseconds ?? 0;
+        var positionInMilliseconds = event.positionInMilliseconds;
+        if (positionInMilliseconds > durationInMilliseconds) {
+          positionInMilliseconds = durationInMilliseconds;
+        }
         _playbackPosition = Duration(
-          milliseconds: event.positionInMilliseconds,
+          milliseconds: positionInMilliseconds,
         );
       case PlaybackReadyEvent():
         _videoInfo = await _hostApi.getVideoInfo();
