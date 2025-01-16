@@ -101,6 +101,7 @@ bool isPlaybackLoopEnabled = false;
 
 void _onPlaybackEnded() {
   if (isPlaybackLoopEnabled) {
+    controller.stop();
     controller.play();
   }
 }

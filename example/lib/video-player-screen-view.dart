@@ -135,6 +135,7 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
 
   void _onPlaybackEnded() {
     if (isPlaybackLoopEnabled) {
+      _controller?.stop();
       _controller?.play();
     }
   }
