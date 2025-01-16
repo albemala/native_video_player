@@ -1,3 +1,8 @@
+## 3.0.0-dev.3
+
+- Using ExoPlayer on Android
+- Set Compile SDK to 35 on Android
+
 ## 3.0.0-dev.2
 
 - Improved error reporting on android
