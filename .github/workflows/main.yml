@@ -1,0 +1,31 @@
+name: Comment on New Issues
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on the issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueComment = `Thank you for opening this issue! 
+
+            I will look into it as soon as possible. In the meantime, please review these important project updates:
+
+            - [Version 3.0 RFC](https://github.com/albemala/native_video_player/issues/33) - Information about upcoming changes and new features
+            - [Community Funding Model](https://github.com/albemala/native_video_player/issues/34) - Learn about project development and support
+
+            Your feedback and contributions are greatly appreciated!`;
+
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body: issueComment
+            });
