@@ -1,3 +1,7 @@
+## 3.0.0-dev.4
+
+- Fixed memory leaks on iOS and Android
+
 ## 3.0.0-dev.3
 
 - Using ExoPlayer on Android
