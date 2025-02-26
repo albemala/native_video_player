@@ -3,6 +3,10 @@ description: A Flutter widget to play videos on iOS and Android using a native i
 version: 3.0.0-dev.3
 repository: https://github.com/albemala/native_video_player
 
+funding:
+  - https://github.com/sponsors/albemala
+  - https://www.buymeacoffee.com/albemala
+
 environment:
   sdk: '>=3.5.0 <4.0.0'
   flutter: ">=3.24.0"
