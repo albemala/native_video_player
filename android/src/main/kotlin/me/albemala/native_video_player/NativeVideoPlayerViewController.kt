@@ -76,6 +76,11 @@ class NativeVideoPlayerViewController(
 
     override fun dispose() {
         NativeVideoPlayerHostApi.setUp(messenger, null)
+        relativeLayout.removeAllViews()
+        if (player.mediaItemCount > 0) {
+            player.removeMediaItem(0)
+        }
+        player.setVideoSurfaceView(null)
         player.removeListener(this)
         player.release()
     }
@@ -97,6 +102,10 @@ class NativeVideoPlayerViewController(
     @OptIn(UnstableApi::class)
     override fun loadVideo(source: VideoSource) {
         player.stop()
+        if (player.mediaItemCount > 0) {
+            player.removeMediaItem(0)
+        }
+
         when (source.type) {
             VideoSourceType.ASSET,
             VideoSourceType.FILE -> {
