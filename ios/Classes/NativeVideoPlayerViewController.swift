@@ -2,11 +2,11 @@ import Foundation
 import Flutter
 import AVFoundation
 
-public class NativeVideoPlayerViewController: NSObject, FlutterPlatformView, NativeVideoPlayerHostApi {
+public class NativeVideoPlayerViewController: NSObject, FlutterPlatformView {
     private let messenger: FlutterBinaryMessenger
-    private let player: AVPlayer
+    private let playerManager: NativeVideoPlayerManager
     private let playerView: NativeVideoPlayerView
-    private var flutterApi: NativeVideoPlayerFlutterApi
+    private let viewId: Int64
 
     init(
         messenger: FlutterBinaryMessenger,
@@ -14,20 +14,44 @@ public class NativeVideoPlayerViewController: NSObject, FlutterPlatformView, Nat
         frame: CGRect
     ) {
         self.messenger = messenger
-        player = AVPlayer(playerItem: nil)
-        playerView = NativeVideoPlayerView(frame: frame, player: player)
-        flutterApi = NativeVideoPlayerFlutterApi(
-            binaryMessenger: messenger,
-            messageChannelSuffix: String(viewId))
+        self.viewId = viewId
+        self.playerManager = NativeVideoPlayerManager(messenger: messenger, viewId: viewId)
+        self.playerView = NativeVideoPlayerView(frame: frame, player: playerManager.player)
+        
         super.init()
 
         NativeVideoPlayerHostApiSetup.setUp(
             binaryMessenger: messenger,
-            api: self,
+            api: playerManager,
             messageChannelSuffix: String(viewId))
+    }
 
+    deinit {
+        NativeVideoPlayerHostApiSetup.setUp(
+            binaryMessenger: messenger,
+            api: nil)
+        playerManager.dispose()
+        playerView.removeFromSuperview()
+    }
+
+    public func view() -> UIView {
+        playerView
+    }
+}
+
+class NativeVideoPlayerManager: NSObject, NativeVideoPlayerHostApi {
+    let player: AVPlayer
+    private let flutterApi: NativeVideoPlayerFlutterApi
+    
+    init(messenger: FlutterBinaryMessenger, viewId: Int64) {
+        self.player = AVPlayer(playerItem: nil)
+        self.flutterApi = NativeVideoPlayerFlutterApi(
+            binaryMessenger: messenger,
+            messageChannelSuffix: String(viewId))
+        super.init()
+        
         player.addObserver(self, forKeyPath: "status", context: nil)
-
+        
         // Allow audio playback when the Ring/Silent switch is set to silent
         do {
             try AVAudioSession.sharedInstance().setCategory(
@@ -41,23 +65,13 @@ public class NativeVideoPlayerViewController: NSObject, FlutterPlatformView, Nat
             ) { _ in }
         }
     }
-
-    deinit {
+    
+    func dispose() {
         removePlayerItemObservers()
         player.removeObserver(self, forKeyPath: "status")
         player.replaceCurrentItem(with: nil)
-
-        NativeVideoPlayerHostApiSetup.setUp(
-            binaryMessenger: messenger,
-            api: nil)
     }
-
-    public func view() -> UIView {
-        playerView
-    }
-}
-
-extension NativeVideoPlayerViewController {
+    
     func loadVideo(source: VideoSource) throws {
         let isUrl = source.type == .network
         
@@ -106,7 +120,6 @@ extension NativeVideoPlayerViewController {
         )
     }
 
-
     func play(speed: Double) throws {
         player.rate = Float(speed)
     }
@@ -147,9 +160,7 @@ extension NativeVideoPlayerViewController {
     func setVolume(volume: Double) throws {
         player.volume = Float(volume)
     }
-}
-
-extension NativeVideoPlayerViewController {
+    
     override public func observeValue(
         forKeyPath keyPath: String?,
         of object: Any?,
@@ -177,28 +188,28 @@ extension NativeVideoPlayerViewController {
             }
         }
     }
-}
-
-private let playerItemNotifications: [NSNotification.Name] = [
-    // A notification the system posts when a player item plays to its end time.
-    AVPlayerItem.didPlayToEndTimeNotification,
-    // A notification that the system posts when a player item fails to play to its end time.
-    // AVPlayerItem.failedToPlayToEndTimeNotification,
-    // A notification the system posts when a player item's time changes discontinuously.
-    // AVPlayerItem.timeJumpedNotification,
-    // A notification the system posts when a player item media doesn't arrive in time to continue playback.
-    // AVPlayerItem.playbackStalledNotification,
-    // A notification the player item posts when its media selection changes.
-    // AVPlayerItem.mediaSelectionDidChangeNotification,
-    // A notification the player item posts when its offset from the live time changes.
-    // AVPlayerItem.recommendedTimeOffsetFromLiveDidChangeNotification,
-    // A notification the system posts when a player item adds a new entry to its access log.
-    // AVPlayerItem.newAccessLogEntryNotification,
-    // A notification the system posts when a player item adds a new entry to its error log.
-    // AVPlayerItem.newErrorLogEntryNotification
-]
-
-extension NativeVideoPlayerViewController {
+    
+    // MARK: - Player Item Notifications
+    
+    private let playerItemNotifications: [NSNotification.Name] = [
+        // A notification the system posts when a player item plays to its end time.
+        AVPlayerItem.didPlayToEndTimeNotification,
+        // A notification that the system posts when a player item fails to play to its end time.
+        // AVPlayerItem.failedToPlayToEndTimeNotification,
+        // A notification the system posts when a player item's time changes discontinuously.
+        // AVPlayerItem.timeJumpedNotification,
+        // A notification the system posts when a player item media doesn't arrive in time to continue playback.
+        // AVPlayerItem.playbackStalledNotification,
+        // A notification the player item posts when its media selection changes.
+        // AVPlayerItem.mediaSelectionDidChangeNotification,
+        // A notification the player item posts when its offset from the live time changes.
+        // AVPlayerItem.recommendedTimeOffsetFromLiveDidChangeNotification,
+        // A notification the system posts when a player item adds a new entry to its access log.
+        // AVPlayerItem.newAccessLogEntryNotification,
+        // A notification the system posts when a player item adds a new entry to its error log.
+        // AVPlayerItem.newErrorLogEntryNotification
+    ]
+    
     @objc
     private func onPlayerItemNotification(notification: NSNotification) {
         // print("AVPlayerItem notification: \(notification.name)")
