@@ -1,3 +1,67 @@
+## 3.0.0
+
+### Breaking Changes
+
+- Removed `PlaybackInfo` class - all information now accessible directly from controller
+  ```dart
+  final duration = controller.videoInfo?.duration;
+  final position = controller.playbackPosition;
+  ```
+
+- Controllers must now be explicitly disposed using `dispose()` method
+  ```dart
+  @override
+  void dispose() {
+    _eventsSubscription?.cancel();
+    controller.dispose();
+    super.dispose();
+  }
+  ```
+
+- Removed `init` constructor from `VideoSource` class
+  ```dart
+  await controller.loadVideo(
+    VideoSource(
+      path: 'path/to/file',
+      type: VideoSourceType.asset,
+    ),
+  );
+  ```
+
+- `seekTo` and playback position values now use `Duration` instead of seconds (#26)
+  ```dart
+  controller.seekTo(Duration(seconds: 3));
+  ```
+
+- Events-based API replaces callback system
+  ```dart
+  _eventsSubscription = controller.events.listen((event) {
+    switch (event) {
+      case PlaybackStatusChangedEvent():
+        // Handle status change
+        final playbackStatus = controller.playbackStatus;
+      // Handle other events...
+    }
+  });
+  ```
+
+### Major Changes
+
+- Targeting Dart 3.5 and Flutter 3.24
+- API redesign using events instead of callbacks
+- Using ExoPlayer on Android
+- Set Compile SDK to 35 on Android
+
+### Improvements
+
+- Improved error reporting on Android
+- Improved example
+
+### Bug Fixes
+
+- Fixed audio playback on iOS when device is in silent mode (#22)
+- Fixed memory leaks on iOS and Android
+
 ## 3.0.0-dev.4
 
 - Fixed memory leaks on iOS and Android
@@ -24,7 +88,8 @@
 
 ## 2.0.0
 
-- Added support for sending optional headers to the native players to stream videos behind authentication (thanks to @shenlong-tanwen)
+- Added support for sending optional headers to the native players to stream videos behind authentication (thanks to
+  @shenlong-tanwen)
 - Notify when video isn't playable on iOS (thanks to @ashilkn)
 - Upgrading to Gradle 8 (thanks to @Pablo-Aldana)
 - minSdkVersion on Android is now 21
@@ -32,9 +97,9 @@
 
 ## 1.3.1
 
-- Fixed #10 
-- Split example into multiple files 
-- Upgraded dependencies 
+- Fixed #10
+- Split example into multiple files
+- Upgraded dependencies
 
 ## 1.3.0
 
@@ -58,7 +123,7 @@
 
 - Fixed publishing error
 
-## 1.0.2 
+## 1.0.2
 
 - Fixed videos not playing on iOS 14
 

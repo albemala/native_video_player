@@ -1,6 +1,6 @@
 name: native_video_player
 description: A Flutter widget to play videos on iOS and Android using a native implementation.
-version: 3.0.0-dev.4
+version: 3.0.0
 repository: https://github.com/albemala/native_video_player
 
 funding:
