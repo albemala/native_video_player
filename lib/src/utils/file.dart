@@ -11,7 +11,6 @@ Future<File> loadAssetFile(String assetPath) async {
   final cacheDirectory = await getTemporaryDirectory();
   final cachedFilePath = join(cacheDirectory.path, assetPath);
   final cachedFile = File(cachedFilePath);
-  if (cachedFile.existsSync()) return cachedFile;
 
   // Create intermediate directories
   final cachedFileDirectoryPath = dirname(cachedFilePath);

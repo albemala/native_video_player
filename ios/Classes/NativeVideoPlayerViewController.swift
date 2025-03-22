@@ -3,149 +3,164 @@ import Flutter
 import AVFoundation
 
 public class NativeVideoPlayerViewController: NSObject, FlutterPlatformView {
-    private let api: NativeVideoPlayerApi
-    private let player: AVPlayer
+    private let messenger: FlutterBinaryMessenger
+    private let playerManager: NativeVideoPlayerManager
     private let playerView: NativeVideoPlayerView
+    private let viewId: Int64
 
     init(
         messenger: FlutterBinaryMessenger,
         viewId: Int64,
         frame: CGRect
     ) {
-        api = NativeVideoPlayerApi(
-            messenger: messenger,
-            viewId: viewId
-        )
-        player = AVPlayer(playerItem: nil)
-        playerView = NativeVideoPlayerView(frame: frame, player: player)
+        self.messenger = messenger
+        self.viewId = viewId
+        self.playerManager = NativeVideoPlayerManager(messenger: messenger, viewId: viewId)
+        self.playerView = NativeVideoPlayerView(frame: frame, player: playerManager.player)
+        
         super.init()
 
-        api.delegate = self
-        player.addObserver(self, forKeyPath: "status", context: nil)
+        NativeVideoPlayerHostApiSetup.setUp(
+            binaryMessenger: messenger,
+            api: playerManager,
+            messageChannelSuffix: String(viewId))
     }
 
     deinit {
-        player.removeObserver(self, forKeyPath: "status")
-        removeOnVideoCompletedObserver()
-
-        player.replaceCurrentItem(with: nil)
+        NativeVideoPlayerHostApiSetup.setUp(
+            binaryMessenger: messenger,
+            api: nil)
+        playerManager.dispose()
+        playerView.removeFromSuperview()
     }
 
     public func view() -> UIView {
         playerView
     }
-
 }
 
-extension NativeVideoPlayerViewController: NativeVideoPlayerApiDelegate {
-    func loadVideoSource(videoSource: VideoSource) {
-        let isUrl = videoSource.type == .network
-        let sourcePath = videoSource.path
+class NativeVideoPlayerManager: NSObject, NativeVideoPlayerHostApi {
+    let player: AVPlayer
+    private let flutterApi: NativeVideoPlayerFlutterApi
+    
+    init(messenger: FlutterBinaryMessenger, viewId: Int64) {
+        self.player = AVPlayer(playerItem: nil)
+        self.flutterApi = NativeVideoPlayerFlutterApi(
+            binaryMessenger: messenger,
+            messageChannelSuffix: String(viewId))
+        super.init()
+        
+        player.addObserver(self, forKeyPath: "status", context: nil)
+        
+        // Allow audio playback when the Ring/Silent switch is set to silent
+        do {
+            try AVAudioSession.sharedInstance().setCategory(
+                .playback,
+                mode: .default,
+                options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            flutterApi.onPlaybackEvent(
+                event: PlaybackErrorEvent(errorMessage: "Failed to set audio session category: \(error.localizedDescription)")
+            ) { _ in }
+        }
+    }
+    
+    func dispose() {
+        removePlayerItemObservers()
+        player.removeObserver(self, forKeyPath: "status")
+        player.replaceCurrentItem(with: nil)
+    }
+    
+    func loadVideo(source: VideoSource) throws {
+        let isUrl = source.type == .network
+        
         guard let uri = isUrl
-            ? URL(string: sourcePath)
-            : URL(fileURLWithPath: sourcePath)
+            ? URL(string: source.path)
+            : URL(fileURLWithPath: source.path)
         else {
             return
         }
-        let videoAsset = isUrl ? AVURLAsset(url: uri, options: ["AVURLAssetHTTPHeaderFieldsKey": videoSource.headers]) : AVAsset(url: uri)
+
+        let videoAsset = isUrl 
+            ? AVURLAsset(url: uri, options: ["AVURLAssetHTTPHeaderFieldsKey": source.headers]) 
+            : AVAsset(url: uri)
+        
         if !videoAsset.isPlayable {
-            api.onError(NSError(domain: "NativeVideoPlayer", code: -1, userInfo: [NSLocalizedDescriptionKey: "Video is not playable"]))
+            flutterApi.onPlaybackEvent(event: PlaybackErrorEvent(errorMessage: "Video is not playable")) { _ in }
             return
         }
+
+        // loadVideo can be called multiple times,
+        // so we need to remove the previous observers
+        if player.currentItem != nil {
+            removePlayerItemObservers()
+        }
+
         let playerItem = AVPlayerItem(asset: videoAsset)
-
-        removeOnVideoCompletedObserver()
         player.replaceCurrentItem(with: playerItem)
-        addOnVideoCompletedObserver()
 
-        api.onPlaybackReady()
+        addPlayerItemObservers()
     }
 
-    func getVideoInfo() -> VideoInfo {
-        let videoInfo = VideoInfo(
-            height: getVideoHeight(),
-            width: getVideoWidth(),
-            duration: getVideoDuration()
+    func getVideoInfo() throws -> VideoInfo {
+        guard 
+            let videoTrack = player.currentItem?.asset.tracks(withMediaType: .video).first,
+            let duration = player.currentItem?.asset.duration else {
+            return VideoInfo(height: 0, width: 0, durationInMilliseconds: 0)
+        }
+        let durationInMilliseconds = duration.isValid 
+            ? duration.seconds * 1000 
+            : 0
+        
+        return VideoInfo(
+            height: Int64(videoTrack.naturalSize.height),
+            width: Int64(videoTrack.naturalSize.width),
+            durationInMilliseconds: Int64(durationInMilliseconds)
         )
-        return videoInfo
     }
 
-    func play() {
-        player.play()
-    }
-
-    func pause() {
-        player.pause()
-    }
-
-    func stop(completion: @escaping () -> Void) {
-        player.pause()
-        if #available(iOS 15, *) {
-            // on iOS 15 or newer
-            player.seek(to: CMTime.zero) { _ in completion()}
-        } else {
-            player.seek(to: CMTime.zero)
-            completion()
-        }
-    }
-
-    func isPlaying() -> Bool {
-        player.rate != 0 && player.error == nil
-    }
-
-    func seekTo(position: Int, completion: @escaping () -> Void) {
-        player.seek(
-            to: CMTimeMakeWithSeconds(Float64(position), preferredTimescale: Int32(NSEC_PER_SEC)),
-            toleranceBefore: .zero,
-            toleranceAfter: .zero
-        ) { _ in
-            completion()
-        }
-    }
-
-    func getPlaybackPosition() -> Int {
-        let currentTime = player.currentItem?.currentTime() ?? CMTime.zero
-        return Int(currentTime.isValid ? currentTime.seconds : 0)
-    }
-
-    func setPlaybackSpeed(speed: Double) {
+    func play(speed: Double) throws {
         player.rate = Float(speed)
     }
 
-    func setVolume(volume: Double) {
+    func pause() throws {
+        player.rate = 0.0
+    }
+
+    func stop() throws {
+        player.rate = 0.0
+        player.seek(to: .zero)
+    }
+
+    func isPlaying() throws -> Bool {
+        return player.rate != 0 && player.error == nil
+    }
+
+    func seekTo(position: Int64) throws {
+        let positionInMilliseconds = CMTimeMake(value: position, timescale: 1000)
+        player.seek(
+            to: positionInMilliseconds,
+            toleranceBefore: .zero,
+            toleranceAfter: .zero)
+    }
+
+    func getPlaybackPosition() throws -> Int64 {
+        let currentTime = player.currentItem?.currentTime() ?? .zero
+        let positionInMilliseconds = currentTime.isValid
+            ? currentTime.seconds * 1000
+            : 0
+        return Int64(positionInMilliseconds)
+    }
+
+    func setPlaybackSpeed(speed: Double) throws {
+        player.rate = Float(speed)
+    }
+
+    func setVolume(volume: Double) throws {
         player.volume = Float(volume)
     }
-}
-
-extension NativeVideoPlayerViewController {
-    private func getVideoDuration() -> Int {
-        Int(player.currentItem?.asset.duration.seconds ?? 0)
-    }
-
-    private func getVideoHeight() -> Int {
-        if let videoTrack = getVideoTrack() {
-            return Int(videoTrack.naturalSize.height)
-        }
-        return 0
-    }
-
-    private func getVideoWidth() -> Int {
-        if let videoTrack = getVideoTrack() {
-            return Int(videoTrack.naturalSize.width)
-        }
-        return 0
-    }
-
-    private func getVideoTrack() -> AVAssetTrack? {
-        if let tracks = player.currentItem?.asset.tracks(withMediaType: .video),
-           let track = tracks.first {
-            return track
-        }
-        return nil
-    }
-}
-
-extension NativeVideoPlayerViewController {
+    
     override public func observeValue(
         forKeyPath keyPath: String?,
         of object: Any?,
@@ -153,42 +168,90 @@ extension NativeVideoPlayerViewController {
         context: UnsafeMutableRawPointer?
     ) {
         if keyPath == "status" {
+            // print("AVPlayer status changed to: \(player.status)")
             switch (player.status) {
             case .unknown:
                 break
             case .readyToPlay:
+                flutterApi.onPlaybackEvent(
+                    event: PlaybackReadyEvent()
+                ) { _ in }
                 break
             case .failed:
                 if let error = player.error {
-                    api.onError(error)
+                    flutterApi.onPlaybackEvent(
+                        event: PlaybackErrorEvent(errorMessage: error.localizedDescription)
+                    ) { _ in }
                 }
             default:
                 break
             }
         }
     }
-}
-
-extension NativeVideoPlayerViewController {
+    
+    // MARK: - Player Item Notifications
+    
+    private let playerItemNotifications: [NSNotification.Name] = [
+        // A notification the system posts when a player item plays to its end time.
+        AVPlayerItem.didPlayToEndTimeNotification,
+        // A notification that the system posts when a player item fails to play to its end time.
+        // AVPlayerItem.failedToPlayToEndTimeNotification,
+        // A notification the system posts when a player item's time changes discontinuously.
+        // AVPlayerItem.timeJumpedNotification,
+        // A notification the system posts when a player item media doesn't arrive in time to continue playback.
+        // AVPlayerItem.playbackStalledNotification,
+        // A notification the player item posts when its media selection changes.
+        // AVPlayerItem.mediaSelectionDidChangeNotification,
+        // A notification the player item posts when its offset from the live time changes.
+        // AVPlayerItem.recommendedTimeOffsetFromLiveDidChangeNotification,
+        // A notification the system posts when a player item adds a new entry to its access log.
+        // AVPlayerItem.newAccessLogEntryNotification,
+        // A notification the system posts when a player item adds a new entry to its error log.
+        // AVPlayerItem.newErrorLogEntryNotification
+    ]
+    
     @objc
-    private func onVideoCompleted(notification: NSNotification) {
-        api.onPlaybackEnded()
+    private func onPlayerItemNotification(notification: NSNotification) {
+        // print("AVPlayerItem notification: \(notification.name)")
+        switch notification.name {
+        case AVPlayerItem.didPlayToEndTimeNotification:
+            flutterApi.onPlaybackEvent(event: PlaybackEndedEvent()) { _ in }
+            break
+//        case AVPlayerItem.failedToPlayToEndTimeNotification:
+//            break
+//        case AVPlayerItem.timeJumpedNotification:
+//            break
+//        case AVPlayerItem.playbackStalledNotification:
+//            break
+//       case AVPlayerItem.mediaSelectionDidChangeNotification:
+//           break
+//       case AVPlayerItem.recommendedTimeOffsetFromLiveDidChangeNotification:
+//           break
+//        case AVPlayerItem.newAccessLogEntryNotification:
+//            break
+//        case AVPlayerItem.newErrorLogEntryNotification:
+//            break
+        default:
+            break
+        }
     }
 
-    private func addOnVideoCompletedObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(onVideoCompleted(notification:)),
-            name: .AVPlayerItemDidPlayToEndTime,
-            object: player.currentItem
-        )
+    private func addPlayerItemObservers() {
+        for notification in playerItemNotifications {
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(onPlayerItemNotification(notification:)),
+                name: notification,
+                object: player.currentItem)
+        }
     }
 
-    private func removeOnVideoCompletedObserver() {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: .AVPlayerItemDidPlayToEndTime,
-            object: player.currentItem
-        )
+    private func removePlayerItemObservers() {
+        for notification in playerItemNotifications {
+            NotificationCenter.default.removeObserver(
+                self,
+                name: notification,
+                object: player.currentItem)
+        }
     }
 }

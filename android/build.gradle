@@ -29,7 +29,7 @@ android {
         namespace = "me.albemala.native_video_player"
     }
 
-    compileSdk = 34
+    compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -65,4 +65,8 @@ android {
             }
         }
     }
+}
+
+dependencies {
+    implementation "androidx.media3:media3-exoplayer:1.5.1"
 }

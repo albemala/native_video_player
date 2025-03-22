@@ -22,56 +22,49 @@ class _AppViewState extends State<AppView> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Native Video Player Example'),
         ),
-        body: _buildBodyView(),
-        bottomNavigationBar: BottomNavigationView(
-          selectedAppRoute: _appRoute,
-          onAppRouteSelected: (appRoute) {
+        body: BodyView(
+          appRoute: _appRoute,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.smart_display),
+              label: 'Video Player',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.view_stream),
+              label: 'Video List',
+            ),
+          ],
+          currentIndex: _appRoute.index,
+          onTap: (index) {
             setState(() {
-              _appRoute = appRoute;
+              _appRoute = AppRoute.values[index];
             });
           },
         ),
       ),
     );
   }
+}
 
-  Widget _buildBodyView() {
-    switch (_appRoute) {
+class BodyView extends StatelessWidget {
+  final AppRoute appRoute;
+
+  const BodyView({
+    super.key,
+    required this.appRoute,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    switch (appRoute) {
       case AppRoute.videoPlayer:
         return const VideoPlayerScreenView();
       case AppRoute.videoList:
         return const VideoListScreenView();
     }
-  }
-}
-
-class BottomNavigationView extends StatelessWidget {
-  final AppRoute selectedAppRoute;
-  final void Function(AppRoute) onAppRouteSelected;
-
-  const BottomNavigationView({
-    super.key,
-    required this.selectedAppRoute,
-    required this.onAppRouteSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.smart_display),
-          label: 'Video Player',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.view_stream),
-          label: 'Video List',
-        ),
-      ],
-      currentIndex: selectedAppRoute.index,
-      onTap: (index) => onAppRouteSelected(AppRoute.values[index]),
-    );
   }
 }

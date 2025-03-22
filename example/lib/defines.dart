@@ -1,28 +1,23 @@
 import 'package:native_video_player/native_video_player.dart';
 
-class ExampleVideoSource {
-  final String path;
-  final VideoSourceType type;
-  final Map<String, String>? headers;
-
-  ExampleVideoSource({
-    required this.path,
-    required this.type,
-    this.headers,
-  });
-}
-
 final videoSources = [
-  ExampleVideoSource(path: 'assets/video/01.mp4', type: VideoSourceType.asset),
-  ExampleVideoSource(path: 'assets/video/02.mp4', type: VideoSourceType.asset),
-  ExampleVideoSource(path: 'assets/video/03.mp4', type: VideoSourceType.asset),
-  ExampleVideoSource(path: 'assets/video/04.mp4', type: VideoSourceType.asset),
-  ExampleVideoSource(path: 'assets/video/05.mp4', type: VideoSourceType.asset),
-  ExampleVideoSource(path: 'assets/video/06.mp4', type: VideoSourceType.asset),
-  // ExampleVideoSource(path: 'assets/video/07.webm', type: VideoSourceType.asset),
-  ExampleVideoSource(
+  VideoSource(path: 'assets/video/01.mp4', type: VideoSourceType.asset),
+  VideoSource(path: 'assets/video/02.mp4', type: VideoSourceType.asset),
+  VideoSource(path: 'assets/video/03.mp4', type: VideoSourceType.asset),
+  VideoSource(path: 'assets/video/04.mp4', type: VideoSourceType.asset),
+  VideoSource(
     path:
-        'https://file-examples.com/storage/fea8fc38fd63bc5c39cf20b/2017/04/file_example_MP4_480_1_5MG.mp4',
+        'https://github.com/albemala/native_video_player/raw/refs/heads/main/example/assets/video/05.mp4',
     type: VideoSourceType.network,
   ),
+  VideoSource(
+    path:
+        'https://github.com/albemala/native_video_player/raw/refs/heads/main/example/assets/video/06.mp4',
+    type: VideoSourceType.network,
+  ),
+  VideoSource(path: 'assets/video/07.webm', type: VideoSourceType.asset),
+  VideoSource(path: 'assets/video/08.mkv', type: VideoSourceType.asset),
+  VideoSource(path: 'assets/video/09.mov', type: VideoSourceType.asset),
+  VideoSource(path: 'assets/video/10.asf', type: VideoSourceType.asset),
+  VideoSource(path: 'assets/video/corrupted.mp4', type: VideoSourceType.asset),
 ];

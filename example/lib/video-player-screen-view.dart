@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:native_video_player/native_video_player.dart';
 import 'package:native_video_player_example/defines.dart';
@@ -15,87 +17,37 @@ class _VideoPlayerScreenViewState extends State<VideoPlayerScreenView> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: VideoPlayerView(
-                videoSource: _selectedVideoSource,
-              ),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: VideoPlayerView(
+              videoSource: _selectedVideoSource,
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 128,
-              child: VideoCarouselView(
-                onVideoSourceSelected: (videoSource) {
-                  setState(() {
-                    _selectedVideoSource = videoSource;
-                  });
-                },
-              ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 128,
+            child: VideoCarouselView(
+              selectedVideoSource: _selectedVideoSource,
+              onVideoSourceSelected: (videoSource) {
+                setState(() {
+                  _selectedVideoSource = videoSource;
+                });
+              },
             ),
-            const SizedBox(height: 16),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }
 }
 
-class VideoCarouselView extends StatelessWidget {
-  final void Function(ExampleVideoSource) onVideoSourceSelected;
-
-  const VideoCarouselView({
-    super.key,
-    required this.onVideoSourceSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: videoSources.length,
-      itemBuilder: (context, index) {
-        return AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Stack(
-            children: [
-              NativeVideoPlayerView(
-                onViewReady: (controller) async {
-                  final videoSource = await VideoSource.init(
-                    type: videoSources[index].type,
-                    path: videoSources[index].path,
-                    headers: videoSources[index].headers,
-                  );
-                  await controller.loadVideoSource(videoSource);
-                },
-              ),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    onVideoSourceSelected(videoSources[index]);
-                  },
-                  child: Container(),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      separatorBuilder: (BuildContext context, int index) {
-        return const SizedBox(width: 8);
-      },
-    );
-  }
-}
-
 class VideoPlayerView extends StatefulWidget {
-  final ExampleVideoSource videoSource;
+  final VideoSource videoSource;
 
   const VideoPlayerView({
     super.key,
@@ -108,9 +60,43 @@ class VideoPlayerView extends StatefulWidget {
 
 class _VideoPlayerViewState extends State<VideoPlayerView> {
   NativeVideoPlayerController? _controller;
+  StreamSubscription<void>? _eventsSubscription;
 
   bool isAutoplayEnabled = false;
   bool isPlaybackLoopEnabled = false;
+
+  Future<void> _initController(NativeVideoPlayerController controller) async {
+    _controller = controller;
+
+    _eventsSubscription = _controller?.events.listen((event) {
+      switch (event) {
+        case PlaybackStatusChangedEvent():
+          _onPlaybackStatusChanged();
+        case PlaybackPositionChangedEvent():
+          _onPlaybackPositionChanged();
+        case PlaybackSpeedChangedEvent():
+          _onPlaybackSpeedChanged();
+        case VolumeChangedEvent():
+          _onPlaybackVolumeChanged();
+        case PlaybackReadyEvent():
+          _onPlaybackReady();
+        case PlaybackEndedEvent():
+          _onPlaybackEnded();
+        case PlaybackErrorEvent():
+          _onPlaybackError(event);
+      }
+    });
+
+    await _loadVideoSource();
+  }
+
+  @override
+  void dispose() {
+    _eventsSubscription?.cancel();
+    _controller?.dispose();
+    _controller = null;
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(VideoPlayerView oldWidget) {
@@ -120,73 +106,15 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
     }
   }
 
-  Future<void> _initController(NativeVideoPlayerController controller) async {
-    _controller = controller;
-
-    _controller?. //
-        onPlaybackStatusChanged
-        .addListener(_onPlaybackStatusChanged);
-    _controller?. //
-        onPlaybackPositionChanged
-        .addListener(_onPlaybackPositionChanged);
-    _controller?. //
-        onPlaybackSpeedChanged
-        .addListener(_onPlaybackSpeedChanged);
-    _controller?. //
-        onVolumeChanged
-        .addListener(_onPlaybackVolumeChanged);
-    _controller?. //
-        onPlaybackReady
-        .addListener(_onPlaybackReady);
-    _controller?. //
-        onPlaybackEnded
-        .addListener(_onPlaybackEnded);
-
-    await _loadVideoSource();
-  }
-
   Future<void> _loadVideoSource() async {
-    final videoSource = await _createVideoSource();
-    await _controller?.loadVideoSource(videoSource);
-  }
-
-  Future<VideoSource> _createVideoSource() async {
-    return VideoSource.init(
-      path: widget.videoSource.path,
-      type: widget.videoSource.type,
-      headers: widget.videoSource.headers,
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller?. //
-        onPlaybackStatusChanged
-        .removeListener(_onPlaybackStatusChanged);
-    _controller?. //
-        onPlaybackPositionChanged
-        .removeListener(_onPlaybackPositionChanged);
-    _controller?. //
-        onPlaybackSpeedChanged
-        .removeListener(_onPlaybackSpeedChanged);
-    _controller?. //
-        onVolumeChanged
-        .removeListener(_onPlaybackVolumeChanged);
-    _controller?. //
-        onPlaybackReady
-        .removeListener(_onPlaybackReady);
-    _controller?. //
-        onPlaybackEnded
-        .removeListener(_onPlaybackEnded);
-    _controller = null;
-    super.dispose();
+    await _controller?.loadVideo(widget.videoSource);
+    if (isAutoplayEnabled) {
+      await _controller?.play();
+    }
   }
 
   void _onPlaybackReady() {
     setState(() {});
-    if (isAutoplayEnabled) {
-      _controller?.play();
-    }
   }
 
   void _onPlaybackStatusChanged() {
@@ -207,8 +135,14 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
 
   void _onPlaybackEnded() {
     if (isPlaybackLoopEnabled) {
+      _controller?.stop();
       _controller?.play();
     }
+  }
+
+  void _onPlaybackError(PlaybackErrorEvent event) {
+    print('''
+Playback error: ${event.errorMessage} (video source: ${widget.videoSource.path})''');
   }
 
   @override
@@ -222,7 +156,8 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
             Checkbox(
               value: isAutoplayEnabled,
               onChanged: (value) {
-                setState(() => isAutoplayEnabled = value ?? false);
+                if (value == null) return;
+                setState(() => isAutoplayEnabled = value);
               },
             ),
             const Text('Autoplay'),
@@ -230,38 +165,40 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
             Checkbox(
               value: isPlaybackLoopEnabled,
               onChanged: (value) {
-                setState(() => isPlaybackLoopEnabled = value ?? false);
+                if (value == null) return;
+                setState(() => isPlaybackLoopEnabled = value);
               },
             ),
             const Text('Playback loop'),
           ],
         ),
-        const SizedBox(height: 16),
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: NativeVideoPlayerView(
-            onViewReady: _initController,
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: NativeVideoPlayerView(
+              onViewReady: _initController,
+            ),
           ),
         ),
         Slider(
           // min: 0,
-          max: (_controller?.videoInfo?.duration ?? 0).toDouble(),
-          value: (_controller?.playbackInfo?.position ?? 0).toDouble(),
-          onChanged: (value) => _controller?.seekTo(value.toInt()),
+          max: _controller?.videoInfo?.duration.inMilliseconds.toDouble() ?? 0,
+          value: _controller?.playbackPosition.inMilliseconds.toDouble() ?? 0,
+          onChanged: (value) {
+            _controller?.seekTo(Duration(milliseconds: value.toInt()));
+          },
         ),
         const SizedBox(height: 4),
         Row(
           children: [
             Text(
-              formatDuration(
-                Duration(seconds: _controller?.playbackInfo?.position ?? 0),
-              ),
+              formatTime(_controller?.playbackPosition ?? Duration.zero),
             ),
             const Spacer(),
             Text(
-              formatDuration(
-                Duration(seconds: _controller?.videoInfo?.duration ?? 0),
-              ),
+              formatTime(_controller?.videoInfo?.duration ?? Duration.zero),
             ),
           ],
         ),
@@ -282,11 +219,15 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
             const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.fast_rewind),
-              onPressed: () => _controller?.seekBackward(5),
+              onPressed: () {
+                _controller?.seekBackward(const Duration(seconds: 5));
+              },
             ),
             IconButton(
               icon: const Icon(Icons.fast_forward),
-              onPressed: () => _controller?.seekForward(5),
+              onPressed: () {
+                _controller?.seekForward(const Duration(seconds: 5));
+              },
             ),
             const Spacer(),
             _buildPlaybackStatusView(),
@@ -295,10 +236,10 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
         Row(
           children: [
             Text('''
-Volume: ${_controller?.playbackInfo?.volume.toStringAsFixed(2)}'''),
+Volume: ${_controller?.volume.toStringAsFixed(2)}'''),
             Expanded(
               child: Slider(
-                value: _controller?.playbackInfo?.volume ?? 0,
+                value: _controller?.volume ?? 0,
                 onChanged: (value) => _controller?.setVolume(value),
               ),
             ),
@@ -307,10 +248,10 @@ Volume: ${_controller?.playbackInfo?.volume.toStringAsFixed(2)}'''),
         Row(
           children: [
             Text('''
-Speed: ${_controller?.playbackInfo?.speed.toStringAsFixed(2)}'''),
+Speed: ${_controller?.playbackSpeed.toStringAsFixed(2)}'''),
             Expanded(
               child: Slider(
-                value: _controller?.playbackInfo?.speed ?? 1,
+                value: _controller?.playbackSpeed ?? 1,
                 onChanged: (value) => _controller?.setPlaybackSpeed(value),
                 min: 0.25,
                 max: 2,
@@ -326,15 +267,73 @@ Speed: ${_controller?.playbackInfo?.speed.toStringAsFixed(2)}'''),
   Widget _buildPlaybackStatusView() {
     const size = 16.0;
     final color = Colors.black.withOpacity(0.3);
-    switch (_controller?.playbackInfo?.status) {
+    switch (_controller?.playbackStatus) {
       case PlaybackStatus.playing:
         return Icon(Icons.play_arrow, size: size, color: color);
       case PlaybackStatus.paused:
         return Icon(Icons.pause, size: size, color: color);
       case PlaybackStatus.stopped:
         return Icon(Icons.stop, size: size, color: color);
-      default:
-        return Container();
+      case null:
+        return const SizedBox.shrink();
     }
+  }
+}
+
+class VideoCarouselView extends StatelessWidget {
+  final VideoSource selectedVideoSource;
+  final void Function(VideoSource) onVideoSourceSelected;
+
+  const VideoCarouselView({
+    super.key,
+    required this.selectedVideoSource,
+    required this.onVideoSourceSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: videoSources.length,
+      itemBuilder: (context, index) {
+        final videoSource = videoSources[index];
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Stack(
+              children: [
+                NativeVideoPlayerView(
+                  onViewReady: (controller) async {
+                    await controller.loadVideo(videoSource);
+                  },
+                ),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      onVideoSourceSelected(videoSource);
+                    },
+                    child: Container(),
+                  ),
+                ),
+                if (videoSource == selectedVideoSource)
+                  const Center(
+                    child: Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 48,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return const SizedBox(width: 8);
+      },
+    );
   }
 }
