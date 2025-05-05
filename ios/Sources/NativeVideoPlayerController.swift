@@ -1,45 +1,13 @@
-import Foundation
-import Flutter
+#if os(iOS)
+  import Flutter
+#elseif os(macOS)
+  import FlutterMacOS
+#else
+  #error("Unsupported platform.")
+#endif
 import AVFoundation
 
-public class NativeVideoPlayerViewController: NSObject, FlutterPlatformView {
-    private let messenger: FlutterBinaryMessenger
-    private let playerManager: NativeVideoPlayerManager
-    private let playerView: NativeVideoPlayerView
-    private let viewId: Int64
-
-    init(
-        messenger: FlutterBinaryMessenger,
-        viewId: Int64,
-        frame: CGRect
-    ) {
-        self.messenger = messenger
-        self.viewId = viewId
-        self.playerManager = NativeVideoPlayerManager(messenger: messenger, viewId: viewId)
-        self.playerView = NativeVideoPlayerView(frame: frame, player: playerManager.player)
-        
-        super.init()
-
-        NativeVideoPlayerHostApiSetup.setUp(
-            binaryMessenger: messenger,
-            api: playerManager,
-            messageChannelSuffix: String(viewId))
-    }
-
-    deinit {
-        NativeVideoPlayerHostApiSetup.setUp(
-            binaryMessenger: messenger,
-            api: nil)
-        playerManager.dispose()
-        playerView.removeFromSuperview()
-    }
-
-    public func view() -> UIView {
-        playerView
-    }
-}
-
-class NativeVideoPlayerManager: NSObject, NativeVideoPlayerHostApi {
+class NativeVideoPlayerController: NSObject, NativeVideoPlayerHostApi {
     let player: AVPlayer
     private let flutterApi: NativeVideoPlayerFlutterApi
     
@@ -52,6 +20,7 @@ class NativeVideoPlayerManager: NSObject, NativeVideoPlayerHostApi {
         
         player.addObserver(self, forKeyPath: "status", context: nil)
         
+#if os(iOS)
         // Allow audio playback when the Ring/Silent switch is set to silent
         do {
             try AVAudioSession.sharedInstance().setCategory(
@@ -64,6 +33,7 @@ class NativeVideoPlayerManager: NSObject, NativeVideoPlayerHostApi {
                 event: PlaybackErrorEvent(errorMessage: "Failed to set audio session category: \(error.localizedDescription)")
             ) { _ in }
         }
+#endif
     }
     
     func dispose() {
