@@ -1,10 +1,4 @@
-#if os(iOS)
-  import Flutter
-#elseif os(macOS)
-  import FlutterMacOS
-#else
-  #error("Unsupported platform.")
-#endif
+import Flutter
 import AVFoundation
 
 class NativeVideoPlayerController: NSObject, NativeVideoPlayerHostApi {
@@ -20,7 +14,6 @@ class NativeVideoPlayerController: NSObject, NativeVideoPlayerHostApi {
         
         player.addObserver(self, forKeyPath: "status", context: nil)
         
-#if os(iOS)
         // Allow audio playback when the Ring/Silent switch is set to silent
         do {
             try AVAudioSession.sharedInstance().setCategory(
@@ -33,7 +26,6 @@ class NativeVideoPlayerController: NSObject, NativeVideoPlayerHostApi {
                 event: PlaybackErrorEvent(errorMessage: "Failed to set audio session category: \(error.localizedDescription)")
             ) { _ in }
         }
-#endif
     }
     
     func dispose() {
