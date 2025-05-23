@@ -1,45 +1,7 @@
-import Foundation
 import Flutter
 import AVFoundation
 
-public class NativeVideoPlayerViewController: NSObject, FlutterPlatformView {
-    private let messenger: FlutterBinaryMessenger
-    private let playerManager: NativeVideoPlayerManager
-    private let playerView: NativeVideoPlayerView
-    private let viewId: Int64
-
-    init(
-        messenger: FlutterBinaryMessenger,
-        viewId: Int64,
-        frame: CGRect
-    ) {
-        self.messenger = messenger
-        self.viewId = viewId
-        self.playerManager = NativeVideoPlayerManager(messenger: messenger, viewId: viewId)
-        self.playerView = NativeVideoPlayerView(frame: frame, player: playerManager.player)
-        
-        super.init()
-
-        NativeVideoPlayerHostApiSetup.setUp(
-            binaryMessenger: messenger,
-            api: playerManager,
-            messageChannelSuffix: String(viewId))
-    }
-
-    deinit {
-        NativeVideoPlayerHostApiSetup.setUp(
-            binaryMessenger: messenger,
-            api: nil)
-        playerManager.dispose()
-        playerView.removeFromSuperview()
-    }
-
-    public func view() -> UIView {
-        playerView
-    }
-}
-
-class NativeVideoPlayerManager: NSObject, NativeVideoPlayerHostApi {
+class NativeVideoPlayerController: NSObject, NativeVideoPlayerHostApi {
     let player: AVPlayer
     private let flutterApi: NativeVideoPlayerFlutterApi
     

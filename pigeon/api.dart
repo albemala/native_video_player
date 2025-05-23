@@ -7,7 +7,7 @@ import 'package:pigeon/pigeon.dart';
     kotlinOut:
         'android/src/main/kotlin/me/albemala/native_video_player/Api.g.kt',
     kotlinOptions: KotlinOptions(),
-    swiftOut: 'ios/Classes/Api.g.swift',
+    swiftOut: 'apple/Sources/Api.g.swift',
     swiftOptions: SwiftOptions(),
     // copyrightHeader: 'pigeons/copyright.txt',
     // dartPackageName: 'pigeon_example_package',

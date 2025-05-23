@@ -16,9 +16,9 @@ A Flutter widget to play videos on iOS, macOS and Android using a native impleme
 
   s.source_files     = 'Sources/*.swift'
   
-  s.dependency 'Flutter'
+  s.dependency 'FlutterMacOS'
 
-  s.platform = :ios, '12.0'
+  s.platform = :osx, '10.11'
   
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
 

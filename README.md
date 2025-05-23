@@ -2,13 +2,13 @@
 
 [![Pub](https://img.shields.io/pub/v/native_video_player)](https://pub.dev/packages/native_video_player)
 
-A Flutter widget to play videos on iOS and Android using a native implementation.
+A Flutter widget to play videos on iOS, macOS and Android using a native implementation.
 
 Perfect for building video-centric apps like TikTok, Instagram Reels, or YouTube Shorts, as well as general video playback needs.
 
-|             | Android | iOS  |
-|:------------|:--------|:-----|
-| **Support** | 16+     | 9.0+ |
+|             | Android | iOS  | macOS |
+|:------------|:--------|:-----|:------|
+| **Support** | 16+     | 9.0+ | 10.11+|
 
 <img src="https://raw.githubusercontent.com/albemala/native_video_player/main/screenshots/1.gif" width="320"/>
 <img src="https://raw.githubusercontent.com/albemala/native_video_player/main/screenshots/2.gif" width="320"/>
@@ -16,7 +16,7 @@ Perfect for building video-centric apps like TikTok, Instagram Reels, or YouTube
 
 ### Implementation
 
-- On iOS, the video is displayed using a combination
+- On iOS and macOS, the video is displayed using a combination
   of [AVPlayer](https://developer.apple.com/documentation/avfoundation/avplayer)
   and [AVPlayerLayer](https://developer.apple.com/documentation/avfoundation/avplayerlayer).
 - On Android, the video is displayed using a combination

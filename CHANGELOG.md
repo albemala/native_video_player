@@ -1,4 +1,17 @@
+## 4.0.0-dev.1
+
+- Added macOS support (macOS 10.11+)
+
+This release is sponsored by:
+
+- [@wiredashio](https://github.com/wiredashio)
+
 ## 3.0.0
+
+This release is sponsored by:
+
+- [@enteio](https://github.com/enteio)
+- [@bsutton](https://github.com/bsutton)
 
 ### Breaking Changes
 

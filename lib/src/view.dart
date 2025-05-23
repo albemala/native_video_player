@@ -49,6 +49,10 @@ class _NativeVideoPlayerViewState extends State<NativeVideoPlayerView> {
           viewType: viewType,
           onPlatformViewCreated: onPlatformViewCreated,
         ),
+      TargetPlatform.macOS => AppKitView(
+          viewType: viewType,
+          onPlatformViewCreated: onPlatformViewCreated,
+        ),
       _ => Text('$defaultTargetPlatform is not yet supported by this plugin.'),
     };
 
