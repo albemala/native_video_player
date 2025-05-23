@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'native_video_player'
-  s.version          = '4.0.0-dev.1'
+  s.version          = '4.0.0'
   s.summary          = 'A Flutter widget to play videos on iOS, macOS and Android using a native implementation.'
   s.description      = <<-DESC
 A Flutter widget to play videos on iOS, macOS and Android using a native implementation.

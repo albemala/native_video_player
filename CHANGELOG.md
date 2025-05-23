@@ -1,12 +1,20 @@
-## 4.0.0-dev.1
-
-- Added macOS support (macOS 10.11+)
+# 4.0.0
 
 This release is sponsored by:
 
 - [@wiredashio](https://github.com/wiredashio)
 
-## 3.0.0
+### Major Changes
+
+- Added macOS support (macOS 10.11+)
+
+
+# 4.0.0-dev.1
+
+- Added macOS support (macOS 10.11+)
+
+
+# 3.0.0
 
 This release is sponsored by:
 
@@ -75,21 +83,25 @@ This release is sponsored by:
 - Fixed audio playback on iOS when device is in silent mode (#22)
 - Fixed memory leaks on iOS and Android
 
-## 3.0.0-dev.4
+
+# 3.0.0-dev.4
 
 - Fixed memory leaks on iOS and Android
 
-## 3.0.0-dev.3
+
+# 3.0.0-dev.3
 
 - Using ExoPlayer on Android
 - Set Compile SDK to 35 on Android
 
-## 3.0.0-dev.2
+
+# 3.0.0-dev.2
 
 - Improved error reporting on android
 - Improved example
 
-## 3.0.0-dev.1
+
+# 3.0.0-dev.1
 
 - Targeting Dart 3.5 and Flutter 3.24
 - API redesign using events instead of callbacks
@@ -99,7 +111,8 @@ This release is sponsored by:
 - `seekTo` and playback position values now use `Duration` instead of seconds (#26)
 - Fixed audio playback on iOS when device is in silent mode (#22)
 
-## 2.0.0
+
+# 2.0.0
 
 - Added support for sending optional headers to the native players to stream videos behind authentication (thanks to
   @shenlong-tanwen)
@@ -108,38 +121,46 @@ This release is sponsored by:
 - minSdkVersion on Android is now 21
 - Upgraded dependencies
 
-## 1.3.1
+
+# 1.3.1
 
 - Fixed #10
 - Split example into multiple files
 - Upgraded dependencies
 
-## 1.3.0
+
+# 1.3.0
 
 - Targeting Dart 3.0 and Flutter 3.10
 
-## 1.2.0+3
+
+# 1.2.0+3
 
 - BREAKING: `NativeVideoPlayerController` now throws exceptions that must be handled by the caller.
 - Added new method to set playback speed
 - Exposed more controller events (playback speed and volume changed)
 
-## 1.1.0+2
+
+# 1.1.0+2
 
 - Fixed gifs not showing in Readme
 
-## 1.1.0
+
+# 1.1.0
 
 - Targeting Flutter 3
 
-## 1.0.3
+
+# 1.0.3
 
 - Fixed publishing error
 
-## 1.0.2
+
+# 1.0.2
 
 - Fixed videos not playing on iOS 14
 
-## 1.0.1
+
+# 1.0.1
 
 - First public release
