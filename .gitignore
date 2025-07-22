@@ -15,7 +15,6 @@
 *.iws
 .idea/
 
-.vscode/
 
 # Flutter/Dart/Pub related
 # Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
@@ -24,3 +23,7 @@
 .dart_tool/
 .packages
 build/
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore

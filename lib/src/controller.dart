@@ -93,6 +93,7 @@ class NativeVideoPlayerController implements NativeVideoPlayerFlutterApi {
   @protected
   @override
   void onPlaybackEvent(PlaybackEvent event) {
+    if(_eventsController.isClosed) return;
     _eventsController.add(event);
   }
 
