@@ -1,3 +1,8 @@
+# 4.0.1
+
+- Do not emit event if controller is closed (fixes [#56](https://github.com/albemala/native_video_player/issues/56))
+
+
 # 4.0.0
 
 This release is sponsored by:
