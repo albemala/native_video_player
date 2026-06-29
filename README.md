@@ -157,6 +157,7 @@ Sponsors:
 
 - [@enteio](https://github.com/enteio)
 - [@bsutton](https://github.com/bsutton)
+- [@wiredashio](https://github.com/wiredashio)
 
 Thank you to all sponsors for supporting this project! ❤️
 
